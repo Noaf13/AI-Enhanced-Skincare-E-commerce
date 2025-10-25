@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Navbar from "@/components/Navbar";
+import Herobanner from "@/components/HeroBanner"
 import { client } from "@/sanity/lib/client";
 import Link from "next/link";
 
@@ -32,6 +33,7 @@ export default async function HomePage() {
 
     <main className="min-h-screen bg-gray-50 text-gray-900">
       <Navbar/>
+      <Herobanner></Herobanner>
 
     
       <section id="bestsellers" className="max-w-7xl mx-auto px-6 py-12">
