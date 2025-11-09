@@ -1,17 +1,19 @@
 "use client";
 
 import Link from "next/link";
-
 import "../components/Navbar.css";
+import { AiOutlineShopping } from "react-icons/ai";
 
 export default function Navbar() {
+  const cartQuantity = 3; 
+
   return (
     <nav className="navbar">
       <div className="logo">GLOWSKIN</div>
 
       <ul className="nav-links">
         <li>
-          <Link href="#products" className="nav-link">
+          <Link href="#bestsellers" className="nav-link">
             Shop All
           </Link>
         </li>
@@ -22,22 +24,21 @@ export default function Navbar() {
         </li>
         <li>
           <Link href="#tech" className="nav-link">
-            tech
+            Tech
           </Link>
-          
         </li>
-         <li>
+        <li>
           <Link href="#contact" className="login-button">
             Login
           </Link>
-          
         </li>
-         <li>
-          <Link href="#basket" className="nav-link">
-            <img src="/shopping-bag.png" alt=""  width={28}
-              height={25} color="white"/>
-          </Link>
-          
+        <li>
+          <button type="button" className="cart-icon">
+            <AiOutlineShopping size={24} />
+            {cartQuantity > 0 && (
+              <span className="cart-item-qty">{cartQuantity}</span>
+            )}
+          </button>
         </li>
       </ul>
     </nav>
