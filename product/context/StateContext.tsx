@@ -1,50 +1,62 @@
 "use client";
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-// import { toast } from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
 
-interface CartItem {
+const Context = createContext<cartContext | undefined>(undefined);
+
+export interface CartItem {
   _id: string;
   name: string;
   price: number;
   quantity: number;
   image?: string;
+  //cart item interface
 }
 
-interface StateContextType {
+interface cartContext {
+    //states
   showCart: boolean;
-  setShowCart: (show: boolean) => void;
   cartItems: CartItem[];
-  setCartItems: (items: CartItem[]) => void;
   totalPrice: number;
-  setTotalPrice: (price: number) => void;
   totalQty: number;
-  setTotalQty: (qty: number) => void;
   qty: number;
+
+    //functions for the states
+  setShowCart: (show: boolean) => void;
+  setCartItems: (items: CartItem[]) => void;
+  setTotalPrice: (price: number) => void;
+  setTotalQty: (qty: number) => void;
   setQty: (qty: number) => void;
+
+  //aditional functions
   incQty: () => void;
   decQty: () => void;
   onAdd: (product: CartItem, quantity: number) => void;
 }
 
-const Context = createContext<StateContextType | undefined>(undefined);
-
+//context provoder component
 interface StateContextProps {
   children: ReactNode;
 }
 
 export const StateContext = ({ children }: StateContextProps) => {
+    //initialise all states
     const [showCart, setShowCart] = useState(false);
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [totalPrice, setTotalPrice] = useState(0);
     const [totalQty, setTotalQty] = useState(0);
     const [qty, setQty] = useState(1);
 
+    //add functions here
+
     const onAdd = (product: CartItem, quantity: number) => {
         const checkProductInCart = cartItems.find((item) => item._id === product._id);
+        //checks if addes item is already in cart just increase qty
 
         setTotalPrice((prevTotalPrice) => prevTotalPrice + product.price * quantity);
         setTotalQty((prevTotalQty) => prevTotalQty + quantity);
+        //can set these form the begining 
 
         if (checkProductInCart) {
             const updatedCartItems = cartItems.map((cartProduct) => {
@@ -53,19 +65,23 @@ export const StateContext = ({ children }: StateContextProps) => {
                         ...cartProduct,
                         quantity: cartProduct.quantity + quantity
                     };
+                    //increase quanity if product already in cart
                 }
-                return cartProduct;
-            });
+                //return product if its not
+                return cartProduct;  });
             setCartItems(updatedCartItems);
         } else {
             setCartItems([...cartItems, { ...product, quantity: quantity }]);
         }
 
-        // Reset quantity after adding to cart
         setQty(1);
         
-        // toast.success(`${quantity} ${product.name} added to the cart.`);
+        toast.success(`${quantity} ${product.name} added to cart!`);
+        setShowCart(true);
+        //notif message
     };
+
+    //for qty button counters
 
     const incQty = () => {
         setQty(prevQty => prevQty + 1);
@@ -76,9 +92,12 @@ export const StateContext = ({ children }: StateContextProps) => {
             if (prevQty - 1 < 1) return 1;
             return prevQty - 1;
         });
+        //check to not go bellow 1
     };
 
-    const value: StateContextType = {
+    //export everything so it can be used
+
+    const value: cartContext = {
         showCart,
         setShowCart,
         cartItems,
@@ -98,13 +117,14 @@ export const StateContext = ({ children }: StateContextProps) => {
         <Context.Provider value={value}>
             {children}
         </Context.Provider>
+        //wrap with context provider
     );
 };
 
-export const useStateContext = (): StateContextType => {
+export const useStateContext = (): cartContext => {
     const context = useContext(Context);
     if (context === undefined) {
-        throw new Error('useStateContext must be used within a StateContext provider');
+        throw new Error('useStateContext must be used ');
     }
     return context;
 };
