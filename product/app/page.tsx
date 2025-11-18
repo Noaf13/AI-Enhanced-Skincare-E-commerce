@@ -57,7 +57,7 @@ export default async function HomePage() {
                       className="w-full h-60 object-cover rounded-md mb-3"
                     />
                   )}
-                  <h3 className="text-lg font-semibold mb-1 hover:text-blue-600 transition">
+                  <h3 className="text-lg font-semibold ">
                     {p.name}
                   </h3>
                 </div>
