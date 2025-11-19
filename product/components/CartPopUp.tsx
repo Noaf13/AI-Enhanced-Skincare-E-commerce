@@ -3,7 +3,7 @@ import { useStateContext } from '@/context/StateContext';
 import { AiOutlineClose } from 'react-icons/ai';
 
 export default function CartPopup() {
-  const { showCart, setShowCart, cartItems, totalPrice, totalQty } = useStateContext();
+  const { showCart, setShowCart, cartItems, totalPrice, totalQty,onRemove, } = useStateContext();
   //states needed for the cart icon and popup
 
   if (!showCart) return null;
@@ -54,6 +54,13 @@ export default function CartPopup() {
                     <p className="font-semibold text-gray-900">
                       £{(item.price * item.quantity).toFixed(2)}
                     </p>
+                      <button 
+                      onClick={() => onRemove(item)}
+                      className="mt-2 p-1 hover:bg-gray-100  text-red-600"
+                      title="Remove item"
+                    >
+                      <AiOutlineClose className="w-4 h-4" />
+                    </button>
                   </div>
 
                 </div>

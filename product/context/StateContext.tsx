@@ -32,6 +32,7 @@ interface cartContext {
   incQty: () => void;
   decQty: () => void;
   onAdd: (product: CartItem, quantity: number) => void;
+  onRemove: (product: CartItem) => void;
 }
 
 //context provoder component
@@ -80,6 +81,23 @@ export const StateContext = ({ children }: StateContextProps) => {
         //notif message
     };
 
+    const onRemove = (product: CartItem)=>{
+        const selectedProduct = cartItems.find((item)=>item._id === product._id)
+        const newCartItems = cartItems.filter((item)=>item._id !== product._id)
+
+        if (selectedProduct){
+            setCartItems(newCartItems)
+            //set items without that product
+            setTotalPrice((prevTotalPrice) => prevTotalPrice - selectedProduct.price * selectedProduct.quantity);
+            //reset qty to correct counter after product is removed 
+            setTotalQty((prevTotalQty) => prevTotalQty - selectedProduct.quantity);
+
+            
+        }
+        toast.success(`${product.name} removed item from cart!`)
+
+    }
+
     //for qty button counters
 
     const incQty = () => {
@@ -110,6 +128,8 @@ export const StateContext = ({ children }: StateContextProps) => {
         incQty,
         decQty,
         onAdd,
+        onRemove,
+
     };
 
     return (
