@@ -3,17 +3,18 @@
 import Link from "next/link";
 import "../components/Navbar.css";
 import { AiOutlineShopping } from "react-icons/ai";
+import { useStateContext } from "@/context/StateContext";
 
 export default function Navbar() {
-  const cartQuantity = 3; 
+  const {setShowCart,totalQty} = useStateContext();
 
   return (
     <nav className="navbar">
-      <div className="logo">GLOWSKIN</div>
+      <Link href="/#" className="logo">GLOWSKIN</Link>
 
       <ul className="nav-links">
         <li>
-          <Link href="#bestsellers" className="nav-link">
+          <Link href="/#bestsellers" className="nav-link">
             Shop All
           </Link>
         </li>
@@ -32,11 +33,11 @@ export default function Navbar() {
             Login
           </Link>
         </li>
-        <li>
-          <button type="button" className="cart-icon">
+        <li><button type="button" className="cart-icon"
+            onClick={() => setShowCart(true)}>
             <AiOutlineShopping size={24} />
-            {cartQuantity > 0 && (
-              <span className="cart-item-qty">{cartQuantity}</span>
+            {totalQty > 0 && (
+              <span className="cart-item-qty">{totalQty}</span>
             )}
           </button>
         </li>
