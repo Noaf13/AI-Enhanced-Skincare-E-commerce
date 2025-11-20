@@ -2,11 +2,40 @@
 import { useStateContext } from '@/context/StateContext';
 import { AiOutlineClose } from 'react-icons/ai';
 
+
 export default function CartPopup() {
   const { showCart, setShowCart, cartItems, totalPrice, totalQty,onRemove, } = useStateContext();
   //states needed for the cart icon and popup
 
   if (!showCart) return null;
+
+  const handleCheckout = async () =>{
+    try{
+      console.log('sending cart items',cartItems);
+      //call the api
+      const response = await fetch('/api/checkout',{
+        method: 'POST',
+        headers:{
+          'Content-Type': 'application/json',
+
+        },
+        body:JSON.stringify({cartItems})
+      });
+      const data = await response.json();
+
+      if (data.url){
+        window.location.href = data.url;
+
+      }else{
+        console.error('no stripe link', data)
+      }
+
+    }catch(error){
+      console.error('checkout error',error);
+
+    }
+
+  };
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden  gap-y-11">
@@ -75,7 +104,7 @@ export default function CartPopup() {
               <span className=' text-gray-900'>Total:</span>
               <span className=' text-gray-900'>£{totalPrice.toFixed(2)}</span>
             </div>
-            <button className="w-full bg-pink-300 text-white py-3 rounded-md hover:bg-pink-200 transition-colors ">
+            <button onClick={handleCheckout} className="w-full bg-pink-300 text-white py-3 rounded-md hover:bg-pink-200 transition-colors " >
               Checkout
             </button>
           </div>
