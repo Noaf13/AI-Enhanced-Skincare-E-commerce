@@ -37,12 +37,14 @@ export default function CartPopup() {
 
   };
 
+  
+
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden  gap-y-11">
+    <div className="fixed inset-0 z-50 overflow-hidden  gap-y-11 pointer-events-none">
       <div onClick={() => setShowCart(false)}
 />
       
-      <div className="absolute right-0 top-0 h-full w-96 bg-white shadow-xl mt-2 mr-5">
+      <div className="absolute right-0 top-0 h-full w-96 bg-white shadow-xl mt-2 mr-5 pointer-events-auto">
         <div className="p-4 border-b">
           <div className="flex justify-between items-center">
             <h2 className="text-lg font-semibold  text-gray-900">Your Cart ({totalQty} items)</h2>

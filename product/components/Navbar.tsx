@@ -8,9 +8,13 @@ import { useStateContext } from "@/context/StateContext";
 export default function Navbar() {
   const {setShowCart,totalQty} = useStateContext();
 
+  const homeClick = () => {
+    setShowCart(false); 
+  };
+
   return (
     <nav className="navbar">
-      <Link href="/#" className="logo">GLOWSKIN</Link>
+      <Link href="/#" className="logo" onClick={homeClick}>GLOWSKIN</Link>
 
       <ul className="nav-links">
         <li>

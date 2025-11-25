@@ -3,6 +3,7 @@ import Navbar from "@/components/Navbar";
 import Herobanner from "@/components/HeroBanner"
 import { client } from "@/sanity/lib/client";
 import Link from "next/link";
+import { AddToCartButton } from "@/components/AddToCartButton";
 
 interface Product {
   _id: string;
@@ -43,9 +44,8 @@ export default async function HomePage() {
           {products.map((p) => (
             <div
               key={p._id}
-              className="bg-white p-4 rounded-lg shadow hover:shadow-lg transition"
+              className="bg-white p-4 rounded-lg shadow hover:shadow-lg transition flex flex-col h-f"
             >
-              {/* Wrap only the clickable parts in Link */}
               <Link href={`/products/${p.slug.current}`}>
                 <div className="cursor-pointer">
                   {p.image && (
@@ -54,7 +54,7 @@ export default async function HomePage() {
                       alt={p.name}
                       width={300}
                       height={300}
-                      className="w-full h-60 object-cover rounded-md mb-3"
+                      className="w-full h-60 object-cover rounded-md mb-3 "
                     />
                   )}
                   <h3 className="text-lg font-semibold ">
@@ -64,18 +64,11 @@ export default async function HomePage() {
               </Link>
               
               <p className="text-gray-600 mb-2">£{p.price}</p>
-              <div className="flex justify-center">
-                <button 
-                  style={{
-                    backgroundColor:'#90af9f', 
-                    color:'white',
-                    padding:6,
-                    borderRadius:9999
-                  }} 
-                  className="hover:shadow-lg transition"
-                >
-                  add to basket
-                </button>
+              <div className="mt-auto">
+                {/* push button to the bottom  */}
+                <AddToCartButton product={p}/>
+                
+                
               </div>
             </div> 
           ))}   
