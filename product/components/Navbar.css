@@ -7,6 +7,12 @@
   justify-content: space-between;
   align-items: center;
 }
+.nav-r {
+  display: flex;
+  align-items: center;
+  gap: 2rem; 
+}
+
 
 .cart-icon {
   position: relative;
@@ -25,7 +31,7 @@
   position: absolute;
   top: -5px;
   right: -5px;
-  background-color: #ec4899;
+  background-color: #90af9f;
   color: white;
   border-radius: 50%;
   width: 20px;
@@ -54,11 +60,11 @@
 }
 
 .nav-link:hover {
-  color: #90af9f;
+  color: #f1f1f1;
 }
 
 .login-button {
-  background-color: #778d81;
+  background-color: #90af9f;
   color: white;
   padding: 0.5rem 1.25rem; 
   border-radius: 9999px;
