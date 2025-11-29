@@ -2,18 +2,49 @@
 import { useStateContext } from '@/context/StateContext';
 import { AiOutlineClose } from 'react-icons/ai';
 
+
 export default function CartPopup() {
-  const { showCart, setShowCart, cartItems, totalPrice, totalQty } = useStateContext();
+  const { showCart, setShowCart, cartItems, totalPrice, totalQty,onRemove, } = useStateContext();
   //states needed for the cart icon and popup
 
   if (!showCart) return null;
 
+  const handleCheckout = async () =>{
+    try{
+      console.log('sending cart items',cartItems);
+      //call the api
+      const response = await fetch('/api/checkout',{
+        method: 'POST',
+        headers:{
+          'Content-Type': 'application/json',
+
+        },
+        body:JSON.stringify({cartItems})
+      });
+      const data = await response.json();
+
+      if (data.url){
+        window.location.href = data.url;
+
+      }else{
+        console.error('no stripe link', data)
+      }
+
+    }catch(error){
+      console.error('checkout error',error);
+
+    }
+
+  };
+
+  
+
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden  gap-y-11">
+    <div className="fixed inset-0 z-50 overflow-hidden  gap-y-11 pointer-events-none">
       <div onClick={() => setShowCart(false)}
 />
       
-      <div className="absolute right-0 top-0 h-full w-96 bg-white shadow-xl mt-2 mr-5">
+      <div className="absolute right-0 top-0 h-full w-96 bg-white shadow-xl mt-2 mr-5 pointer-events-auto">
         <div className="p-4 border-b">
           <div className="flex justify-between items-center">
             <h2 className="text-lg font-semibold  text-gray-900">Your Cart ({totalQty} items)</h2>
@@ -54,6 +85,13 @@ export default function CartPopup() {
                     <p className="font-semibold text-gray-900">
                       £{(item.price * item.quantity).toFixed(2)}
                     </p>
+                      <button 
+                      onClick={() => onRemove(item)}
+                      className="mt-2 p-1 hover:bg-gray-100  text-red-600"
+                      title="Remove item"
+                    >
+                      <AiOutlineClose className="w-4 h-4" />
+                    </button>
                   </div>
 
                 </div>
@@ -68,7 +106,7 @@ export default function CartPopup() {
               <span className=' text-gray-900'>Total:</span>
               <span className=' text-gray-900'>£{totalPrice.toFixed(2)}</span>
             </div>
-            <button className="w-full bg-pink-300 text-white py-3 rounded-md hover:bg-pink-200 transition-colors ">
+            <button onClick={handleCheckout} className="w-full bg-pink-300 text-white py-3 rounded-md hover:bg-pink-200 transition-colors " >
               Checkout
             </button>
           </div>

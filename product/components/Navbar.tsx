@@ -8,11 +8,16 @@ import { useStateContext } from "@/context/StateContext";
 export default function Navbar() {
   const {setShowCart,totalQty} = useStateContext();
 
+  const homeClick = () => {
+    setShowCart(false); 
+  };
+
   return (
     <nav className="navbar">
-      <Link href="/#" className="logo">GLOWSKIN</Link>
+      <Link href="/#" className="logo" onClick={homeClick}>GLOWSKIN</Link>
 
       <ul className="nav-links">
+        <div className="nav-r">
         <li>
           <Link href="/#bestsellers" className="nav-link">
             Shop All
@@ -25,11 +30,11 @@ export default function Navbar() {
         </li>
         <li>
           <Link href="#tech" className="nav-link">
-            Tech
+            Orders
           </Link>
         </li>
         <li>
-          <Link href="#contact" className="login-button">
+          <Link href="#contact" className="bg-[#90af9f] text-white py-3 px-5 rounded-3xl hover:bg-[#7a9a8a]">
             Login
           </Link>
         </li>
@@ -41,7 +46,10 @@ export default function Navbar() {
             )}
           </button>
         </li>
+        </div>
       </ul>
+      
+      
     </nav>
   );
 }
