@@ -4,6 +4,9 @@ import Link from "next/link";
 import "../components/Navbar.css";
 import { AiOutlineShopping } from "react-icons/ai";
 import { useStateContext } from "@/context/StateContext";
+import {SignInButton, SignUpButton, SignedIn,SignedOut,UserButton
+} from '@clerk/nextjs';
+
 
 export default function Navbar() {
   const {setShowCart,totalQty} = useStateContext();
@@ -33,11 +36,30 @@ export default function Navbar() {
             Orders
           </Link>
         </li>
+        <SignedOut>
         <li>
-          <Link href="#contact" className="bg-[#90af9f] text-white py-3 px-5 rounded-3xl hover:bg-[#7a9a8a]">
+          <SignInButton mode="modal">
+          <button className="bg-[#90af9f] text-white py-3 px-5 rounded-3xl hover:bg-[#7a9a8a]">
             Login
-          </Link>
+          </button>
+          </SignInButton>
+
+
         </li>
+        </SignedOut>
+
+         <SignedIn>
+          <li>
+            <UserButton
+              appearance={{
+                elements: {
+                  avatarBox: "w-8 h-8",
+                }
+              }}
+            />
+          </li>
+        </SignedIn>
+
         <li><button type="button" className="cart-icon"
             onClick={() => setShowCart(true)}>
             <AiOutlineShopping size={24} />
@@ -46,6 +68,7 @@ export default function Navbar() {
             )}
           </button>
         </li>
+
         </div>
       </ul>
       

@@ -5,6 +5,7 @@ import "./globals.css";
 import { StateContext } from '../context/StateContext';
 import { Toaster } from "react-hot-toast";
 import CartPopup from '../components/CartPopUp'; 
+import {ClerkProvider,} from '@clerk/nextjs'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,6 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    <ClerkProvider>
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <StateContext>
@@ -45,5 +47,6 @@ export default function RootLayout({
         </StateContext>
       </body>
     </html>
+    </ClerkProvider>
   );
 }
