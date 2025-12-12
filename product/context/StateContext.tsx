@@ -87,7 +87,7 @@ export const StateContext = ({ children }: StateContextProps) => {
 
         try {
             //0.5s delay for server call so it looks cleaner
-            await new Promise(resolve=> setTimeout(resolve,500))
+            await new Promise(resolve=> setTimeout(resolve,1000))
 
               
         toast.success(`${quantity} ${product.name} added to cart!`);
