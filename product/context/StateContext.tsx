@@ -1,7 +1,9 @@
 "use client";
 
+import { resolve } from 'path';
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { toast } from 'react-hot-toast';
+import { set } from 'sanity';
 
 const Context = createContext<cartContext | undefined>(undefined);
 
@@ -50,7 +52,13 @@ export const StateContext = ({ children }: StateContextProps) => {
 
     //add functions here
 
-    const onAdd = (product: CartItem, quantity: number) => {
+    const onAdd = async (product: CartItem, quantity: number) => {
+
+         //saves current state as prev(used for rollback)
+        const prevCartItems = [...cartItems];//creates copy of the whole cart array
+        const prevTotalQty = totalQty;
+        const prevTotalPrice= totalPrice;
+
         const checkProductInCart = cartItems.find((item) => item._id === product._id);
         //checks if addes item is already in cart just increase qty
 
@@ -63,8 +71,7 @@ export const StateContext = ({ children }: StateContextProps) => {
                 if (cartProduct._id === product._id) {
                     return {
                         ...cartProduct,
-                        quantity: cartProduct.quantity + quantity
-                    };
+                        quantity: cartProduct.quantity + quantity};
                     //increase quanity if product already in cart
                 }
                 //return product if its not
@@ -75,10 +82,27 @@ export const StateContext = ({ children }: StateContextProps) => {
         }
 
         setQty(1);
-        
-        toast.success(`${quantity} ${product.name} added to cart!`);
+
         setShowCart(true);
-        //notif message
+
+        try {
+            //0.5s delay for server call so it looks cleaner
+            await new Promise(resolve=> setTimeout(resolve,1000))
+
+              
+        toast.success(`${quantity} ${product.name} added to cart!`);
+            
+            
+        } catch (error) {
+            //rollback on error
+            setCartItems(prevCartItems);
+            setTotalPrice(prevTotalPrice);
+            setTotalPrice(prevTotalQty);
+
+            toast.error(`failed to add ${product.name}, please try again`);
+            
+        }
+      
     };
 
     const onRemove = (product: CartItem)=>{

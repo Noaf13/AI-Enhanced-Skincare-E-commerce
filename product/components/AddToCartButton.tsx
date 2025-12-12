@@ -1,6 +1,7 @@
 "use client";
 
 import { useStateContext } from '@/context/StateContext';
+import React from 'react';
 //state context for cart logic
 
 interface Product {
@@ -21,21 +22,32 @@ interface AddToCartButtonProps {
 
 export function AddToCartButton({ product }: AddToCartButtonProps) {
   const { onAdd } = useStateContext();
-  const handleAddToCart = () => {
+  //add isloaidng state for visual feedback-track waiting for server
+  const[isLoading,setIsLoading] = React.useState(false);
+
+  const handleAddToCart = async () => {
+    if (isLoading) return;
+    
+    setIsLoading(true);
+    try{
     const cartItem = {
       _id: product._id,  name: product.name,price: product.price,
       quantity: 1,
       image: product.image
     };
-    onAdd(cartItem, 1);
+    await onAdd(cartItem, 1);}
+    finally{
+      setIsLoading(false);
+    }
   };
 
   return (
     <button
       onClick={handleAddToCart}
+      disabled = {isLoading}
       className=" bg-[#90af9f] text-white py-3 px-6 rounded-lg hover:bg-[#7a9a8a] transition-all duration-200 font-medium text-sm uppercase tracking-wide shadow-md hover:shadow-lg transform hover:scale-105 w-full"
     >
-      Add to cart
+      {isLoading ? 'Adding...':'Add to Cart'}
     </button>
   );
 }
