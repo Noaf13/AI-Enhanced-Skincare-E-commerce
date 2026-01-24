@@ -58,6 +58,12 @@ export default defineType({
   type: "document",
 
   fields: [
+     defineField({
+      name: "orderNumber",
+      title: "Order Number ",
+      type: "string",
+      readOnly: true,
+    }),
     defineField({
       name: "clerkUserId",
       title: "Clerk User ID",
@@ -66,6 +72,16 @@ export default defineType({
     defineField({
       name: "stripeSessionId",
       title: "Stripe Session ID",
+      type: "string",
+    }),
+      defineField({
+      name: "customerEmail",
+      title: "Customer Email ",
+      type: "string",
+    }),
+      defineField({
+      name: "customerName",
+      title: "Customer Name",
       type: "string",
     }),
     defineField({
@@ -79,6 +95,10 @@ export default defineType({
       type: "string",
       options: {
         list: [
+            {
+            title: "Pending",
+            value: "pending",
+          },
           {
             title: "Paid",
             value: "paid",
@@ -97,7 +117,7 @@ export default defineType({
           },
         ],
       },
-      initialValue: "paid",
+      initialValue: "pending",
     }),
 
     defineField({
@@ -109,6 +129,12 @@ export default defineType({
           type: "object",
 
           fields: [
+
+              defineField({
+              name: "productId",
+              title: "Product ID",
+              type: "string",
+            }),
             defineField({
               name: "productName",
               title: "Product Name",
@@ -126,7 +152,7 @@ export default defineType({
             }),
             defineField({
               name: "image",
-              title: "Image",
+              title: "Image URL",
               type: "string",
             }),
           ],
@@ -139,8 +165,9 @@ export default defineType({
       type: "number",
     }),
     defineField({
-      name: "userEmail",
-      type: "string",
+      name: "shippingAmount",
+      title: "shippingAmount",
+      type:"number",
     }),
     defineField({
       name: "shippingAddress",
@@ -179,13 +206,14 @@ export default defineType({
   preview: {
     select: {
       title: "stripeSessionId",
+      orderNumber:"orderNumber",
       customer: "customerEmail",
       total: "totalAmount",
       status: "status",
       date: "orderDate",
     },
     prepare(selection: any) {
-      const { title, customer, total, status, date } = selection;
+      const { title,orderNumber, customer, total, status, date } = selection;
 
       const formattedDate = new Date(date).toLocaleDateString("en-GB", {
         day: "numeric",
