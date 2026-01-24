@@ -61,7 +61,7 @@ export default function Navbar() {
             </Link>
           </li>
           <li>
-            <Link href="#tech" className="nav-link">
+            <Link href="/orders" className="nav-link">
               Orders
             </Link>
           </li>
