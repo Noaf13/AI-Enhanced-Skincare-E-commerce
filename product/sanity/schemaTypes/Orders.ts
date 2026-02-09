@@ -51,7 +51,7 @@
 
 import { defineType, defineField, defineArrayMember } from "sanity";
 
-export default defineType({
+export const order = defineType({
   name: "order",
 
   title: "Order",
@@ -136,7 +136,7 @@ export default defineType({
               type: "string",
             }),
             defineField({
-              name: "productName",
+              name: "name",
               title: "Product Name",
               type: "string",
             }),
@@ -169,6 +169,18 @@ export default defineType({
       title: "shippingAmount",
       type:"number",
     }),
+     defineField({
+      name: "currency",
+      title: "Currency",
+      type: "string",
+    }),
+
+     defineField({
+      name: "createdAt",
+      title: "Order Date",
+      type: "datetime",
+    }),
+
     defineField({
       name: "shippingAddress",
       title: "Shipping Address",
@@ -196,16 +208,10 @@ export default defineType({
         }),
       ],
     }),
-    defineField({
-      name: "orderDate",
-      title: "Order Date",
-      type: "datetime",
-    }),
   ],
 
   preview: {
     select: {
-      title: "stripeSessionId",
       orderNumber:"orderNumber",
       customer: "customerEmail",
       total: "totalAmount",
@@ -213,17 +219,18 @@ export default defineType({
       date: "orderDate",
     },
     prepare(selection: any) {
-      const { title,orderNumber, customer, total, status, date } = selection;
+      const { orderNumber, customer, total, status, date } = selection;
 
       const formattedDate = new Date(date).toLocaleDateString("en-GB", {
         day: "numeric",
         month: "short",
         year: "numeric",
       });
-      return {
-        title: `Order: ${title?.substring(0, 15)}...`,
-        subtitle: `${customer} - £${total} (${status})(${formattedDate}) `,
+    return {
+        title: orderNumber || "No order number",
+        subtitle: `${customer || "No email"} - £${total || 0} (${status || "unknown"}) (${formattedDate})`,
       };
+
     },
   },
 });
