@@ -40,13 +40,22 @@
 
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
-
+import {auth} from "@clerk/nextjs/server"
 import { stripe } from "../../../lib/stripe";
 
 export async function POST(request: Request) {
   try {
     const headersList = await headers();
     const origin = headersList.get("origin");
+
+    // Get authenticated user from clerk
+    const {userId} = await auth()!
+    if (!userId){
+      return NextResponse.json(
+        {error : "Please sign in to checkout "},
+        {status: 401}
+      );
+    }
 
     //Get cart items from request body
     const { cartItems } = await request.json();
@@ -59,13 +68,21 @@ export async function POST(request: Request) {
       );
     }
 
+    // Essential cart data -save space from metadata for Stripe
+    const essentialCartItems = cartItems.map((item:any)=>({
+      _id:item._id,
+      name:item.name,
+      price: item.price,
+      quantity: item.quantity,
+
+    }))
+
     // Create Checkout Sessions with payment configuration
     const session = await stripe.checkout.sessions.create({
       submit_type: "pay",
       mode: "payment",
       payment_method_types: ["card"],
       billing_address_collection: "auto",
-      //added shipping options
       shipping_options: [
         { shipping_rate: "shr_1SVXqyKrElyPn1fzeOxFPye5" },
         { shipping_rate: "shr_1SVXsaKrElyPn1fzfh6LkLRY" },
@@ -77,7 +94,7 @@ export async function POST(request: Request) {
         price_data: {
           currency: "gbp",
           product_data: {
-            name: item.name, //product name from cat
+            name: item.name, //product name from cart
             images: item.image ? [item.image] : [], //product image
           },
           unit_amount: Math.round(item.price * 100), // since stripe requires amount in pence
@@ -85,6 +102,13 @@ export async function POST(request: Request) {
         quantity: item.quantity, //quantity from cart items
         //data structure for stripe
       })),
+
+      metadata:{
+        clerkUserId:userId,
+        cartItems:JSON.stringify(essentialCartItems)
+        // storing essential data
+
+      },
 
       //Redirect to success page if payment is successful
       success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,

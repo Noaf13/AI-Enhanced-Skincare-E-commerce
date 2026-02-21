@@ -51,13 +51,19 @@
 
 import { defineType, defineField, defineArrayMember } from "sanity";
 
-export default defineType({
+export const order = defineType({
   name: "order",
 
   title: "Order",
   type: "document",
 
   fields: [
+     defineField({
+      name: "orderNumber",
+      title: "Order Number ",
+      type: "string",
+      readOnly: true,
+    }),
     defineField({
       name: "clerkUserId",
       title: "Clerk User ID",
@@ -66,6 +72,16 @@ export default defineType({
     defineField({
       name: "stripeSessionId",
       title: "Stripe Session ID",
+      type: "string",
+    }),
+      defineField({
+      name: "customerEmail",
+      title: "Customer Email ",
+      type: "string",
+    }),
+      defineField({
+      name: "customerName",
+      title: "Customer Name",
       type: "string",
     }),
     defineField({
@@ -79,6 +95,10 @@ export default defineType({
       type: "string",
       options: {
         list: [
+            {
+            title: "Pending",
+            value: "pending",
+          },
           {
             title: "Paid",
             value: "paid",
@@ -97,7 +117,7 @@ export default defineType({
           },
         ],
       },
-      initialValue: "paid",
+      initialValue: "pending",
     }),
 
     defineField({
@@ -109,8 +129,14 @@ export default defineType({
           type: "object",
 
           fields: [
+
+              defineField({
+              name: "productId",
+              title: "Product ID",
+              type: "string",
+            }),
             defineField({
-              name: "productName",
+              name: "name",
               title: "Product Name",
               type: "string",
             }),
@@ -126,7 +152,7 @@ export default defineType({
             }),
             defineField({
               name: "image",
-              title: "Image",
+              title: "Image URL",
               type: "string",
             }),
           ],
@@ -139,9 +165,22 @@ export default defineType({
       type: "number",
     }),
     defineField({
-      name: "userEmail",
+      name: "shippingAmount",
+      title: "shippingAmount",
+      type:"number",
+    }),
+     defineField({
+      name: "currency",
+      title: "Currency",
       type: "string",
     }),
+
+     defineField({
+      name: "createdAt",
+      title: "Order Date",
+      type: "datetime",
+    }),
+
     defineField({
       name: "shippingAddress",
       title: "Shipping Address",
@@ -169,33 +208,29 @@ export default defineType({
         }),
       ],
     }),
-    defineField({
-      name: "orderDate",
-      title: "Order Date",
-      type: "datetime",
-    }),
   ],
 
   preview: {
     select: {
-      title: "stripeSessionId",
+      orderNumber:"orderNumber",
       customer: "customerEmail",
       total: "totalAmount",
       status: "status",
       date: "orderDate",
     },
     prepare(selection: any) {
-      const { title, customer, total, status, date } = selection;
+      const { orderNumber, customer, total, status, date } = selection;
 
       const formattedDate = new Date(date).toLocaleDateString("en-GB", {
         day: "numeric",
         month: "short",
         year: "numeric",
       });
-      return {
-        title: `Order: ${title?.substring(0, 15)}...`,
-        subtitle: `${customer} - £${total} (${status})(${formattedDate}) `,
+    return {
+        title: orderNumber || "No order number",
+        subtitle: `${customer || "No email"} - £${total || 0} (${status || "unknown"}) (${formattedDate})`,
       };
+
     },
   },
 });

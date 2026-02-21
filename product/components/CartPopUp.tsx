@@ -19,10 +19,14 @@
 "use client";
 import { useStateContext } from "@/context/StateContext";
 import { AiOutlineClose } from "react-icons/ai";
+import {useAuth} from "@clerk/nextjs"
+import toast from "react-hot-toast";
 
 export default function CartPopup() {
   const { showCart, setShowCart, cartItems, totalPrice, totalQty, onRemove } =
     useStateContext();
+
+  const {isSignedIn}= useAuth();
   //states needed for the cart icon and popup
 
   if (!showCart) return null;
@@ -30,6 +34,13 @@ export default function CartPopup() {
   const handleCheckout = async () => {
     try {
       console.log("sending cart items", cartItems);
+
+      //first check if signed in for auth
+      if (!isSignedIn){
+        toast.error("Please sign in to checkout")
+        return;
+      }
+
       //call the api
       const response = await fetch("/api/checkout", {
         method: "POST",
@@ -40,10 +51,17 @@ export default function CartPopup() {
       });
       const data = await response.json();
 
+      if (response.status === 401){
+        toast.error("Please sign in to checkout ")
+        return;
+        // Handles the edge case if isSignedIn was wrong
+      }
+
       if (data.url) {
         window.location.href = data.url;
       } else {
         console.error("no stripe link", data);
+        toast.error("checkout failed, please try again")
       }
     } catch (error) {
       console.error("checkout error", error);
