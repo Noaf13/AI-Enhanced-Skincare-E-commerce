@@ -73,8 +73,54 @@ export const product = defineType({
       name: "category",
       title: "Category",
       type: "reference",
-      to: [{ type: "string" }],
+      to: [{ type: "category" }],
     }),
+
+    // Added skin type section
+    defineField({
+      name: "skinType",
+      title: "Skin Type",
+      type: "array",
+      of: [{ type: "string" }],
+      options:{
+        list: [
+          {title:"Normal",value:"normal"},
+          {title:"Oily",value:"oily"},
+          {title:"Dry",value:"dry"},
+          {title:"Combination",value:"combination"},
+          {title:"Sensitive",value:"sensitive"},
+          {title:"All Skin Types",value:"all"},
+
+        ]
+      }
+    }),
+
+    // Added ingredients
+    defineField({
+      name: "ingredients",
+      title: "Key Ingredients",
+      type: "array",
+      of: [{ type: "string" }],
+      options: {
+        list: [
+          { title: "Hyaluronic Acid", value: "hyaluronic-acid" },
+          { title: "Vitamin C", value: "vitamin-c" },
+
+          { title: "Retinol", value: "retinol" },
+          { title: "Niacinamide", value: "niacinamide" },
+          { title: "Salicylic Acid", value: "salicylic-acid" },
+          { title: "Ceramides", value: "ceramides" },
+          { title: "AHA/BHA", value: "aha-bha" },
+          { title: "SPF", value: "spf" },
+          { title: "Aloe Vera", value: "aloe-vera" },
+          { title: "Tea Tree", value: "tea-tree" },
+          { title: "Peptides", value: "peptides" },
+          { title: "Squalane", value: "squalane" },
+        ],
+      },
+    }),
+
+
 
     defineField({
       name: "stock",
