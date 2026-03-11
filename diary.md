@@ -1,3 +1,127 @@
+04/03/26
+
+I pulled the product grid out of page.tsx into its own ProductSection component. The homepage stays as a server component for initial data fetching, while ProductSection becomes a client component for interactivity.
+
+I also Added filter tags above the grid that show active filters with x bitton to clear and a live product count that updates as the filter changes.
+
+01/03/26
+
+Finished building the FilterSideBar component today so it received filter state and callbacks, just rendering for now. Also completed the filter cars with collapsible components using local usestate for open/closed with ingrediants defaulting to close since its a long list.
+
+At first I started working on a separate search sidebar but then merged into the FilterSideBar.tsx
+
+I also added a “clear all” button that resets all filters.
+
+25/02/26
+
+There were a couple of ts errors on every .map(), .filter(), .some(), .every() callback. Parameters like (t) or (i) had no type annotation. I fixed them one by one with explicit types: (t: string), (i: string).
+
+I also had to fix the price filter logic so now it just has max pricers so users can see all products to a certain types.
+
+21/02/26
+
+Started building the useFilters hook while using a single useState object that holds all the values for the filter, this has also made clearing filters logic alot easier to implement since you only need one setState({})
+
+For the filtering logic it runs on each product through 5 different checks; search text ,category math,price,skin-type and ingrediants.
+
+
+
+17/02/26
+
+Fixed the category bug today changed to: [{ type: "string" }] → to: [{ type: "category" }] and the sanity studio category dropdown shows the actual category documents.
+
+Created some catgeory documents and updated the GROQ query and checked it with Sanity Studio.I also started converting my Figma design into the FilterSideBar.tsx file started with the filter card and drop down. 
+
+14/02/26
+
+Started modifying the product schema today.Added skinType as an array of strings with options. Also added ingredients with the most common skincare ingredients. Made both fields optional in ts so older products that dont have them can still exist.
+
+Tested the changes on Sanity Studio which showed up correctly and made a couple of test products.I also realised I need to update the GROQ queries to fetch the new fields.
+
+11/02/26
+
+I decided to spend some time organising how I wanted to implement my filter logic,at first I decided to put the filter stet in the global StateContext with the cart but since filters are only used in the homepage I decided to make it simpler and add a custom hook.A file that encapsulates all the filter logic,state and values and components to call it.
+
+I spent majority of my time researching the chatbot since it is a bigger feature nand requires more planning since its also something im not familiar with at all.
+
+08/02/26
+
+I evaluated the code so far and tested out the features thoroughly making sure to document any small bugs or features I would like to Improve I will have this in the /document folder.I then reviewed the sprint plan for weeks 2-3 and began gathering design inspirations from various websites for a filtering system.
+
+After some research I realised that most of them fetch the producrs once and filter from the client side which I also wanted to implement since the catalogues right now arent too populated. This will also avoid Sanity overloading and will also affect latency.
+
+I was able to finalise a Figma frame for the filtering system and start converting to Tailwind CSS.
+05/02/26
+
+Completed the order dashboard UI with full responsive design and brand-consistent styling. Designed friendly message for users without orders, includes "Start Shopping" CTA button with brand pink color, centered layout with generous spacing.Also added full order cards with order details, product list summary address and a collapsable button to allow users to see all orser cards quickly.
+
+Added a notification badge system for the different states:paid,shipped,delivered ect.However I still ahvent made it so it responsive with other devices wil be adding that when I have more time.
+
+Main blocker- Cannot verify complete functionality until deployed on Vercel for testing.There is a risk that when I finally deploy and test with real data i might discover layout issues or rendering/query issues.
+
+
+
+01/02/26
+
+Started to build the user-facing dashboard for the order history using the Figma files.Created a new page at app/orders/page.tsx as a server component for better performance. Implemented server-side authentication guard using Clerk's auth function - unauthenticated users redirect immediately to sign-in before any rendering occurs.
+
+Started up with Order Card container and main details some of the Icons and formating was not alligning in the container.
+
+Testing:
+
+* Added test orders manually and the UI showed up well however the image didn’t render in properly.
+
+28/01/26
+
+I spent a lot of time researching and understanding how webhooks can't work with localhost and designing the order page using figma design and website inspirations.
+
+Local Host only exists in my machine. Stripe servers on the interent is not able to reach it, which is why payments work but orders aren't created.
+
+Researched optimal solutions to test the Order schema:
+
+* Stripe CLI - Official tool built for this however had windows installation issues with it.
+* Vercel - Production ready with permenant URL however needed to configure environment variables.
+
+/Documents (for Figma UI order design file)
+
+24/01/26
+
+Focused on creating the Order schema in Sanity and configuring database write permissions.I found issues with feild name mismatched between webhooks and schema; however fixed this quite early on.
+
+Encountered a critical issue with the sanity client being configured in read-only mode. For webhooks to create orders, I needed write permission.
+
+Testing:
+
+* Webhook endpoint not set up, so I couldn’t test fully but tested the format in Sanity Studio.
+
+
+
+22/01/26
+
+Today, I began implementing Week 1’s order dashboard requirement by researching how to properly link Stripe payments to database orders. However, no order record was discovered to indicate that the issue with my implementation was that payments were succeeding, but no order records were being created.
+
+What I researched:
+
+-Studied Stripe webhook documentation again for checkout completed events.
+
+-Reviewed Clerk authentication server-side API for Next.js 14 App Router
+
+-Researched Sanity schema best practices for relational data (orders linked to users)
+-Investigated metadata limitations in Stripe (discovered 500 character limit per field)
+
+Started adding clerk authentication to the checkout flow and encountered my first major blocker, the checkout API route needed server side authentication but initialy I was using client side hooks which caused errors. Another issue I encountered was the metadata initially failed because I was trying to store the entire cart object and product images. This caused the Error “Metadata values can have up to 500 characters”.This issue alone took me a while to debug but after looking through the files carefully I was able to pin point the issue and create a minimal cart items array that strips out image URLS before JSON stringifying.
+
+Testing:
+
+* Logged out the user and checked for the correct error and the appropriate message
+* Logged in users can proceed to checkout page
+* Metadata is stored correctly in Stripe session (verified in Stripe dashboard)
+* Orders cant be created yet webhook isnt implemented 
+
+
+
+Term 1
+
 11/12/25
 
 I implemented the async onAdd function and successfully optimised the main basket functionality in sateContext.tsx by adding a snapshot for rollback functionality and implemented loading states to the buttons. The basket now is instant and maintains data integrity if networks fails(rollback). During the implementation, I also realised that I have 2 different AddToCart button components, one for product detail pages and another one for main listing, which means I will need to refactor them into one single reusable component in the future.
