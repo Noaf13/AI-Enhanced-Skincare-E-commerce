@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { AddToCartButton } from "@/components/AddToCartButton";
+import WishlistButton from "@/components/WishlistButton";
 import FilterSidebar from "@/components/FilterSidebar";
 import { useFilters, Product } from "@/hooks/useFilters";
 
@@ -161,7 +162,7 @@ export default function ProductSection({ products }: ProductSectionProps) {
                   className="bg-white p-4 rounded-lg shadow hover:shadow-lg transition flex flex-col"
                 >
                   <Link href={`/products/${product.slug.current}`}>
-                    <div className="cursor-pointer">
+                    <div className="cursor-pointer relative">
                       {product.image && (
                         <Image
                           src={product.image}
@@ -171,31 +172,13 @@ export default function ProductSection({ products }: ProductSectionProps) {
                           className="w-full h-60 object-cover rounded-md mb-3"
                         />
                       )}
+                      {/* heart icon in top right corner of image */}
+                      <div className="absolute top-2 right-2" onClick={(e) => e.preventDefault()}>
+                        <WishlistButton product={product} />
+                      </div>
                       <h3 className="text-lg font-semibold">{product.name}</h3>
                     </div>
                   </Link>
-
-                  {/* little tags showing skin type and ingredients on each card */}
-                  {(product.skinType?.length || product.ingredients?.length) && (
-                    <div className="flex flex-wrap gap-1 mt-1.5 mb-2">
-                      {product.skinType?.slice(0, 2).map((t: string) => (
-                        <span
-                          key={t}
-                          className="text-[10px] font-medium uppercase tracking-wide bg-[#90af9f]/10 text-[#6b8f7f] px-2 py-0.5 rounded-full"
-                        >
-                          {SKIN_TYPE_LABELS[t] || t}
-                        </span>
-                      ))}
-                      {product.ingredients?.slice(0, 2).map((i: string) => (
-                        <span
-                          key={i}
-                          className="text-[10px] font-medium uppercase tracking-wide bg-pink-50 text-pink-400 px-2 py-0.5 rounded-full"
-                        >
-                          {INGREDIENT_LABELS[i] || i}
-                        </span>
-                      ))}
-                    </div>
-                  )}
 
                   <p className="text-gray-600 mb-2">£{product.price}</p>
                   <div className="mt-auto">
@@ -212,7 +195,7 @@ export default function ProductSection({ products }: ProductSectionProps) {
   );
 }
 
-// remove filters 
+//small tag with an x button to remove a filter
 function FilterTag({
   label,
   onRemove,
