@@ -30,10 +30,11 @@
  */
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { toast } from "react-hot-toast";
+import { useUser } from "@clerk/nextjs";
 
-const Context = createContext<cartContext | undefined>(undefined);
+const Context = createContext<AppContext | undefined>(undefined);
 
 export interface CartItem {
   _id: string;
@@ -43,170 +44,144 @@ export interface CartItem {
   image?: string;
 }
 
-interface cartContext {
+export interface WishlistItem {
+  _id: string;
+  name: string;
+  price: number;
+  image?: string;
+  slug: string;
+}
+
+interface AppContext {
   showCart: boolean;
   cartItems: CartItem[];
   totalPrice: number;
   totalQty: number;
   qty: number;
-
   setShowCart: (show: boolean) => void;
   setCartItems: (items: CartItem[]) => void;
   setTotalPrice: (price: number) => void;
   setTotalQty: (qty: number) => void;
   setQty: (qty: number) => void;
-
   incQty: () => void;
   decQty: () => void;
   onAdd: (product: CartItem, quantity: number) => void;
   onRemove: (product: CartItem) => void;
+  wishlistItems: WishlistItem[];
+  addToWishlist: (product: WishlistItem) => void;
+  removeFromWishlist: (productId: string) => void;
+  isInWishlist: (productId: string) => boolean;
+  moveToCart: (product: WishlistItem) => void;
 }
 
-//context provoder component
 interface StateContextProps {
   children: ReactNode;
 }
 
 export const StateContext = ({ children }: StateContextProps) => {
-  //initialise all states
+  const { user } = useUser();
+
   const [showCart, setShowCart] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [totalQty, setTotalQty] = useState(0);
   const [qty, setQty] = useState(1);
-  /**
-   * Adds product to cart or updates quantity if already exists
-   * Uses optimistic updates with rollback on error
-   *
-   * @async
-   * @function onAdd
-   * @param {CartItem} product - Product to add to cart
-   * @param {number} quantity - Quantity to add
-   * @returns {Promise<void>}
-   *
-   * @example
-   * await onAdd(product, 2); // Adds 2 of product to cart
-   *
-   * @sideeffects
-   * - Updates cartItems, totalPrice, totalQty state
-   * - Shows cart popup
-   * - Displays success/error toast
-   * - Resets quantity selector to 1
-   */
-  const onAdd = async (product: CartItem, quantity: number) => {
-    //saves current state as prev(used for rollback)
-    const prevCartItems = [...cartItems]; //creates copy of the whole cart array
-    const prevTotalQty = totalQty;
-    const prevTotalPrice = totalPrice;
+  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
 
-    const checkProductInCart = cartItems.find(
-      (item) => item._id === product._id
-    );
-    //checks if addes item is already in cart just increase qty
+  
+  const onAdd = (product: CartItem, quantity: number) => {
+    const alreadyInCart = cartItems.find((item) => item._id === product._id);
 
-    setTotalPrice(
-      (prevTotalPrice) => prevTotalPrice + product.price * quantity
-    );
-    setTotalQty((prevTotalQty) => prevTotalQty + quantity);
-    //can set these form the begining
+    setTotalPrice((prev) => prev + product.price * quantity);
+    setTotalQty((prev) => prev + quantity);
 
-    if (checkProductInCart) {
-      const updatedCartItems = cartItems.map((cartProduct) => {
-        if (cartProduct._id === product._id) {
-          return {
-            ...cartProduct,
-            quantity: cartProduct.quantity + quantity,
-          };
-          //increase quanity if product already in cart
-        }
-        //return product if its not
-        return cartProduct;
-      });
-      setCartItems(updatedCartItems);
+    if (alreadyInCart) {
+      setCartItems(
+        cartItems.map((item) =>
+          item._id === product._id
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
+        )
+      );
     } else {
-      setCartItems([...cartItems, { ...product, quantity: quantity }]);
+      setCartItems([...cartItems, { ...product, quantity }]);
     }
 
     setQty(1);
-
     setShowCart(true);
-
-    try {
-      //0.5s delay for server call so it looks cleaner
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      toast.success(`${quantity} ${product.name} added to cart!`);
-    } catch (error) {
-      //rollback on error
-      setCartItems(prevCartItems);
-      setTotalPrice(prevTotalPrice);
-      setTotalPrice(prevTotalQty);
-
-      toast.error(`failed to add ${product.name}, please try again`);
-    }
+    toast.success(`${quantity} ${product.name} added to cart!`);
   };
-
-  /**
-   * Removes product from cart and updates totals
-   *
-   * @function onRemove
-   * @param {CartItem} product - Product to remove from cart
-   * @returns {void}
-   *
-   * @example
-   * onRemove(product); // Removes product from cart
-   */
 
   const onRemove = (product: CartItem) => {
-    const selectedProduct = cartItems.find((item) => item._id === product._id);
-    const newCartItems = cartItems.filter((item) => item._id !== product._id);
+    const found = cartItems.find((item) => item._id === product._id);
+    if (!found) return;
 
-    if (selectedProduct) {
-      setCartItems(newCartItems);
-      //set items without that product
-      setTotalPrice(
-        (prevTotalPrice) =>
-          prevTotalPrice - selectedProduct.price * selectedProduct.quantity
-      );
-      //reset qty to correct counter after product is removed
-      setTotalQty((prevTotalQty) => prevTotalQty - selectedProduct.quantity);
+    setCartItems(cartItems.filter((item) => item._id !== product._id));
+    setTotalPrice((prev) => prev - found.price * found.quantity);
+    setTotalQty((prev) => prev - found.quantity);
+    toast.success(`${product.name} removed from cart!`);
+  };
+
+  const incQty = () => setQty((prev) => prev + 1);
+  const decQty = () => setQty((prev) => (prev <= 1 ? 1 : prev - 1));
+
+// Wishlist logic
+//uses guest if not linked in -shared local storage 
+  const wishlistKey = user ? `wishlist_${user.id}` : "wishlist_guest";
+  useEffect(() => {
+    const saved = localStorage.getItem(wishlistKey);
+    if (saved) {
+      try {
+        setWishlistItems(JSON.parse(saved));
+      } catch {
+        localStorage.removeItem(wishlistKey);
+      }
+    } else {
+      //get rid of whislist when switching user
+      setWishlistItems([]);
     }
-    toast.success(`${product.name} removed item from cart!`);
-  };
+  }, [wishlistKey]);
 
-  //for qty button counters
-  /**
-   * Increments quantity selector value
-   *
-   * @function incQty
-   * @returns {void}
-   */
-  const incQty = () => {
-    setQty((prevQty) => prevQty + 1);
-  };
+  useEffect(() => {
+    localStorage.setItem(wishlistKey, JSON.stringify(wishlistItems));
+  }, [wishlistItems, wishlistKey]);
 
-  /**
-   * Decrements quantity selector value with minimum of 1
-   *
-   * @function decQty
-   * @returns {void}
-   */
 
-  const decQty = () => {
-    setQty((prevQty) => {
-      if (prevQty - 1 < 1) return 1;
-      return prevQty - 1;
-    });
-    //check to not go bellow 1
-  };
+  function addToWishlist(product: WishlistItem) {
+    if (wishlistItems.find((item) => item._id === product._id)) {
+      toast.error(`${product.name} is already in your wishlist`);
+      return;
+    }
 
-  //export everything so it can be used
+    setWishlistItems([...wishlistItems, product]);
+    toast.success(`${product.name} added to wishlist!`);
+  } 
+  
+  function isInWishlist(productId: string) {
+    return wishlistItems.some((item) => item._id === productId);
+  }
 
-  /**
-   * Context value containing all state and actions
-   * @constant {CartContext} value
-   */
-  const value: cartContext = {
+  function removeFromWishlist(productId: string) {
+    const product = wishlistItems.find((item) => item._id === productId);
+    setWishlistItems(wishlistItems.filter((item) => item._id !== productId));
+    if (product) toast.success(`${product.name} removed from wishlist`);
+  }
+
+ 
+
+  function moveToCart(product: WishlistItem) {
+    const cartItem: CartItem = {
+      _id: product._id,
+      name: product.name,
+      price: product.price,
+      quantity: 1,
+      image: product.image,
+    };
+    onAdd(cartItem, 1);
+    removeFromWishlist(product._id);
+  }
+
+  const value: AppContext = {
     showCart,
     setShowCart,
     cartItems,
@@ -221,18 +196,20 @@ export const StateContext = ({ children }: StateContextProps) => {
     decQty,
     onAdd,
     onRemove,
+    wishlistItems,
+    addToWishlist,
+    removeFromWishlist,
+    isInWishlist,
+    moveToCart,
   };
 
-  return (
-    <Context.Provider value={value}>{children}</Context.Provider>
-    //wrap with context provider
-  );
+  return <Context.Provider value={value}>{children}</Context.Provider>;
 };
 
-export const useStateContext = (): cartContext => {
+export const useStateContext = (): AppContext => {
   const context = useContext(Context);
   if (context === undefined) {
-    throw new Error("useStateContext must be used ");
+    throw new Error("useStateContext must be used within StateContext");
   }
   return context;
 };
