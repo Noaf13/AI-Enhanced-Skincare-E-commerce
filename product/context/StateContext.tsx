@@ -153,6 +153,8 @@ export const StateContext = ({ children }: StateContextProps) => {
 
     try {
       //0.5s delay for server call so it looks cleaner
+
+      
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       toast.success(`${quantity} ${product.name} added to cart!`);
@@ -162,7 +164,7 @@ export const StateContext = ({ children }: StateContextProps) => {
       setTotalPrice(prevTotalPrice);
       setTotalPrice(prevTotalQty);
 
-      toast.error(`failed to add ${product.name}, please try again`);
+      toast.error(`failed to add ${product.name} please try again`);
     }
   };
 
