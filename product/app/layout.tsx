@@ -41,6 +41,8 @@ import { StateContext } from "../context/StateContext";
 import { Toaster } from "react-hot-toast";
 import CartPopup from "../components/CartPopUp";
 import { ClerkProvider } from "@clerk/nextjs";
+import ChatContainer from '@/components/chat/ChatContainer';
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -82,6 +84,7 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
+          <ChatContainer />
           <StateContext>
             {children}
             <CartPopup />
