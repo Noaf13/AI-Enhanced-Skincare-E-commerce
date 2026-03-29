@@ -5,6 +5,7 @@ export interface Message {
   sender: 'user' | 'bot';
   timestamp: Date;
   products?: Product[];
+  quickReplies?: string[];
   //takes message from chatbot 
 }
 
