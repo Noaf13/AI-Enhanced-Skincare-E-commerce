@@ -4,12 +4,15 @@ import ChatButton from './ChatButton';
 import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
 import { Message } from '@/sanity/lib/chatbot/types';
+import { getBotResponse } from '@/sanity/lib/chatbot/responseservice';
 
 export default function ChatWidget() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([]);
+    const [isOpen, setIsOpen] = useState(false);
+    const [messages, setMessages] = useState<Message[]>([]);
+    const [isTyping, setIsTyping] = useState(false);
 
-  const handleSendMessage = (text: string) => {
+
+  const handleSendMessage = async (text: string) => {
     const userMessage: Message = {
       id: Date.now().toString(),
       text,
@@ -17,19 +20,27 @@ export default function ChatWidget() {
       timestamp: new Date(),
     };
 
-    setMessages([...messages, userMessage]);
+    setMessages(prev => [...prev, userMessage]);
+    setIsTyping(true);
 
-    setTimeout(() => {
+   try {
+      const botResponse = await getBotResponse(text, messages);
+
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: "response",
+        text: botResponse.text,
         sender: 'bot',
         timestamp: new Date(),
+        quickReplies: botResponse.quickReplies,
       };
-      setMessages((prev) => [...prev, botMessage]);}, 700);
+
+      setMessages(prev => [...prev, botMessage]);
+    } finally {
+      setIsTyping(false);
+    }
+  }; 
       //added 700 delay to make it simulate response time 
-    //bot simulation ^ 
-  };
+    //bot simulation 
 
   return (
     <>
@@ -47,7 +58,8 @@ export default function ChatWidget() {
             </button>
           </div>
           
-          <ChatMessage messages={messages} />
+          <ChatMessage messages={messages} isTyping={isTyping}
+            onQuickReply={handleSendMessage}/>
           <ChatInput onSend={handleSendMessage} />
         </div>
       )}
