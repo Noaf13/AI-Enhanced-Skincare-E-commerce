@@ -32,6 +32,7 @@ export default function ChatWidget() {
         sender: 'bot',
         timestamp: new Date(),
         quickReplies: botResponse.quickReplies,
+        products: botResponse.products,
       };
 
       setMessages(prev => [...prev, botMessage]);

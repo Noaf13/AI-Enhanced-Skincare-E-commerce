@@ -2,16 +2,17 @@
 
 import { Message } from '@/sanity/lib/chatbot/types';
 import { useEffect, useRef } from 'react';
+import ProductCard from './ProductResponse';
 
 interface Props {
-  messages: Message[];
-  isTyping: boolean;
-  onQuickReply: (text: string) => void;
+  messages: Message[]
+  isTyping: boolean
+  onQuickReply: (text: string) => void
 }
 
 export default function MessageList({ messages, isTyping, onQuickReply }: Props) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
+    useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
@@ -23,32 +24,32 @@ export default function MessageList({ messages, isTyping, onQuickReply }: Props)
         </div>
       ) : (
         messages.map((message) => {
-          const isUser = message.sender === 'user';
+        const isUser = message.sender === 'user'
           return (
             <div key={message.id} className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
-              <div className="flex flex-col gap-2 max-w-[70%]">
-                <div
-                  className={`rounded-lg px-4 py-2 ${
-                    isUser ? 'bg-[#90af9f] text-white' : 'bg-gray-100 text-gray-900'
-                  }`}
-                >
+              <div className="flex flex-col gap-2 max-w-[80%]">
+                <div className={`rounded-lg px-4 py-2 ${isUser ? 'bg-[#90af9f] text-white' : 'bg-gray-100 text-gray-900'}`}>
                   <p className="text-sm">{message.text}</p>
                   <span className="text-xs opacity-70 mt-1 block">
-                    {message.timestamp.toLocaleTimeString('en-GB', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
+                    {message.timestamp.toLocaleTimeString('en-GB', {hour: '2-digit', minute: '2-digit'})}
                   </span>
                 </div>
 
+                  {/* show product cards if bot returned any */}
+                  {!isUser && message.products && message.products.length > 0 && (
+                  <div className="flex flex-col gap-2">
+                      {message.products.map((product) => (
+                        <ProductCard key={product._id} product={product} />
+                      ))}
+                  </div>
+                )}
+
                 {!isUser && message.quickReplies && message.quickReplies.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2">
                     {message.quickReplies.map((reply) => (
-                      <button
-                        key={reply}
+                      <button key={reply}
                         onClick={() => onQuickReply(reply)}
-                        className="text-xs border border-[#90af9f] text-[#90af9f] rounded-full px-3 py-1 hover:bg-[#90af9f] hover:text-white transition-colors"
-                      >
+                        className="text-xs border border-[#90af9f] text-[#90af9f] rounded-full px-3 py-1 hover:bg-[#90af9f] hover:text-white transition-colors">
                         {reply}
                       </button>
                     ))}
@@ -56,7 +57,7 @@ export default function MessageList({ messages, isTyping, onQuickReply }: Props)
                 )}
               </div>
             </div>
-          );
+          )
         })
       )}
 
@@ -69,8 +70,7 @@ export default function MessageList({ messages, isTyping, onQuickReply }: Props)
           </div>
         </div>
       )}
-
       <div ref={messagesEndRef} />
     </div>
-  );
+  )
 }
