@@ -1,42 +1,45 @@
-
-import { Message,Product } from './types';
-import { matchKeywords, getQuickReplies } from './keywordmatch';
-import { detectProductType, detectSkinType, fetchProductsByType,
-  fetchProductsForSkinType } from './productMatcher';
+import { Message, Product } from './types';
 
 export interface BotResponse {
   text: string;
   quickReplies?: string[];
-products?: Product[];
-
+  products?: Product[];
 }
+
+function getQuickReplies(message: string): string[] {
+  const lower = message.toLowerCase();
+
+  if (lower.includes('product') || lower.includes('shop') || lower.includes('buy')) {
+    return ['Show cleansers', 'Show serums', 'Show moisturizers'];
+  }
+  if (lower.includes('skin') || lower.includes('routine')) {
+    return ['Oily skin', 'Dry skin', 'Sensitive skin'];
+  }
+  if (lower.includes('hi') || lower.includes('hello') || lower.includes('hey')) {
+    return ['Show products', 'Skin types', 'Shipping info'];
+  }
+  return [];
+}
+
 export async function getBotResponse(
   userMessage: string,
-  conversationHistory: Message[]
-//   Replace with AI api 
-
-
+  _conversationHistory: Message[]
 ): Promise<BotResponse> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const responseText = matchKeywords(userMessage);
-  const quickReplies = getQuickReplies(userMessage);
+  const response = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: userMessage }),
+  });
 
-  let products: Product[] = [];
-  
-  const productType = detectProductType(userMessage);
-  if (productType) {
-    products = await fetchProductsByType(productType);
+  if (!response.ok) {
+    return { text: "Sorry, I'm having trouble connecting. Please try again!" };
   }
-  
-  const skinType = detectSkinType(userMessage);
-  if (skinType && products.length === 0) {
-    products = await fetchProductsForSkinType(skinType);
-  }
-  
+
+  const data = await response.json();
+
   return {
-    text: responseText,
-    quickReplies: quickReplies.length > 0 ? quickReplies : undefined,
-    products: products.length > 0 ? products : undefined,
-
+    text: data.text,
+    products: data.products,
+    quickReplies: getQuickReplies(userMessage),
   };
 }
