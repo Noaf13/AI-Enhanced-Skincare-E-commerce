@@ -24,6 +24,7 @@
  */
 import { redirect } from "next/navigation";
 import { stripe } from "../../lib/stripe";
+import Link from "next/link";
 
 export default async function Success({
   searchParams,
@@ -47,21 +48,72 @@ export default async function Success({
   // Check if sessions is complete
   if (session.status === "complete") {
     return (
-      <section id="success" className="p-8 max-w-2xl mx-auto">
-        {/* Confirmation with dynamic email from the Stripe session */}
-        <h1 className="text-2xl font-bold mb-4">Order Confirmed!</h1>
-        <p className="mb-4">
-          Thank you for buying with us! A confirmation email will be sent to{" "}
-          {session.customer_details?.email}. If you have any questions please
-          email us{" "}
-        </p>
-        <a
-          href="mailto:orders@example.com"
-          className="text-blue-600 hover:underline"
+      // Full-screen overlay centred over the page background
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-100">
+        <section
+          id="success"
+          className="bg-white rounded-2xl shadow-xl px-10 py-12 max-w-md w-full mx-4 text-center"
         >
-          orders@example.com
-        </a>
-      </section>
+          {/* Animated green checkmark circle */}
+          <div className="flex items-center justify-center w-20 h-20 rounded-full bg-[#90af9f]/20 mx-auto mb-6">
+            <svg
+              className="w-10 h-10 text-[#90af9f]"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+
+          {/* Confirmation with dynamic email from the Stripe session */}
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            Order Confirmed!
+          </h1>
+          <p className="text-sm text-gray-500 mb-1">
+            Thank you for shopping with GLOWSKIN.
+          </p>
+          <p className="text-sm text-gray-500 mb-6">
+            A confirmation email will be sent to{" "}
+            <span className="font-medium text-gray-700">
+              {session.customer_details?.email}
+            </span>
+          </p>
+
+          {/* Divider */}
+          <hr className="border-gray-100 mb-6" />
+
+          {/* Contact line */}
+          <p className="text-xs text-gray-400 mb-6">
+            Questions? Email us at{" "}
+            <a
+              href="mailto:orders@example.com"
+              className="text-[#90af9f] hover:underline"
+            >
+              orders@example.com
+            </a>
+          </p>
+
+          {/* View orders button - takes user to their order history */}
+          <Link
+            href="/orders"
+            className="inline-block w-full bg-[#90af9f] text-white px-6 py-3 rounded-lg hover:bg-[#7a9a8a] transition font-medium text-sm"
+          >
+            View My Orders
+          </Link>
+
+          {/* Secondary link back to shopping */}
+          <Link
+            href="/"
+            className="inline-block mt-3 text-xs text-gray-400 hover:text-gray-600 transition"
+          >
+            Continue Shopping
+          </Link>
+        </section>
+      </div>
     );
   }
 

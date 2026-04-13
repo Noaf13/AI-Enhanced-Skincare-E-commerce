@@ -63,18 +63,18 @@ export async function POST(request: Request) {
     if (!cartItems || cartItems.length === 0) {
       //Validate whether cart has items or not
       return NextResponse.json(
-        { error: "There is no items in cart" },
+        { error: "There are no items in cart" },
         { status: 400 }
       );
     }
 
-    // Essential cart data -save space from metadata for Stripe
+    // Essential cart data - include image so it saves correctly to Sanity via webhook
     const essentialCartItems = cartItems.map((item:any)=>({
       _id:item._id,
       name:item.name,
       price: item.price,
       quantity: item.quantity,
-
+      image: item.image || "", // included so order history shows product images
     }))
 
     // Create Checkout Sessions with payment configuration
@@ -83,13 +83,18 @@ export async function POST(request: Request) {
       mode: "payment",
       payment_method_types: ["card"],
       billing_address_collection: "auto",
+
+      // Collect shipping address from the customer on the Stripe checkout page
+      shipping_address_collection: {
+        allowed_countries: ["GB", "US", "CA", "AU", "IE", "FR", "DE", "NL"],
+      },
+
       shipping_options: [
         { shipping_rate: "shr_1SVXqyKrElyPn1fzeOxFPye5" },
         { shipping_rate: "shr_1SVXsaKrElyPn1fzfh6LkLRY" },
       ],
 
       //Transfer cart items into Stripe line items format
-
       line_items: cartItems.map((item: any) => ({
         price_data: {
           currency: "gbp",
@@ -100,14 +105,12 @@ export async function POST(request: Request) {
           unit_amount: Math.round(item.price * 100), // since stripe requires amount in pence
         },
         quantity: item.quantity, //quantity from cart items
-        //data structure for stripe
       })),
 
       metadata:{
         clerkUserId:userId,
         cartItems:JSON.stringify(essentialCartItems)
-        // storing essential data
-
+        // storing essential data including images
       },
 
       //Redirect to success page if payment is successful

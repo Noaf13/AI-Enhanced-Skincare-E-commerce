@@ -27,8 +27,8 @@
  *   "shippingAddress": {
  *     "line1": "123 Main St",
  *     "city": "London",
- *     "postalCode": "SW1A 1AA",
- *     "country": "UK"
+ *     "postal_code": "SW1A 1AA",
+ *     "country": "GB"
  *   },
  *   "orderDate": "2024-01-15T10:30:00Z"
  * }
@@ -53,14 +53,13 @@ import { defineType, defineField, defineArrayMember } from "sanity";
 
 export const order = defineType({
   name: "order",
-
   title: "Order",
   type: "document",
 
   fields: [
-     defineField({
+    defineField({
       name: "orderNumber",
-      title: "Order Number ",
+      title: "Order Number",
       type: "string",
       readOnly: true,
     }),
@@ -74,12 +73,12 @@ export const order = defineType({
       title: "Stripe Session ID",
       type: "string",
     }),
-      defineField({
+    defineField({
       name: "customerEmail",
-      title: "Customer Email ",
+      title: "Customer Email",
       type: "string",
     }),
-      defineField({
+    defineField({
       name: "customerName",
       title: "Customer Name",
       type: "string",
@@ -95,26 +94,12 @@ export const order = defineType({
       type: "string",
       options: {
         list: [
-            {
-            title: "Pending",
-            value: "pending",
-          },
-          {
-            title: "Paid",
-            value: "paid",
-          },
-          {
-            title: "Processing",
-            value: "processing",
-          },
-          {
-            title: "Shipped",
-            value: "shipped",
-          },
-          {
-            title: "Cancelled",
-            value: "cancelled",
-          },
+          { title: "Pending", value: "pending" },
+          { title: "Paid", value: "paid" },
+          { title: "Processing", value: "processing" },
+          { title: "Shipped", value: "shipped" },
+          { title: "Delivered", value: "delivered" },
+          { title: "Cancelled", value: "cancelled" },
         ],
       },
       initialValue: "pending",
@@ -127,96 +112,44 @@ export const order = defineType({
       of: [
         defineArrayMember({
           type: "object",
-
           fields: [
-
-              defineField({
-              name: "productId",
-              title: "Product ID",
-              type: "string",
-            }),
-            defineField({
-              name: "name",
-              title: "Product Name",
-              type: "string",
-            }),
-            defineField({
-              name: "price",
-              title: "Price",
-              type: "number",
-            }),
-            defineField({
-              name: "quantity",
-              title: "Quantity",
-              type: "number",
-            }),
-            defineField({
-              name: "image",
-              title: "Image URL",
-              type: "string",
-            }),
+            defineField({ name: "productId", title: "Product ID", type: "string" }),
+            defineField({ name: "name", title: "Product Name", type: "string" }),
+            defineField({ name: "price", title: "Price", type: "number" }),
+            defineField({ name: "quantity", title: "Quantity", type: "number" }),
+            defineField({ name: "image", title: "Image URL", type: "string" }),
           ],
         }),
       ],
     }),
-    defineField({
-      name: "totalAmount",
-      title: "Total Amount",
-      type: "number",
-    }),
-    defineField({
-      name: "shippingAmount",
-      title: "shippingAmount",
-      type:"number",
-    }),
-     defineField({
-      name: "currency",
-      title: "Currency",
-      type: "string",
-    }),
-
-     defineField({
-      name: "createdAt",
-      title: "Order Date",
-      type: "datetime",
-    }),
+    defineField({ name: "totalAmount", title: "Total Amount", type: "number" }),
+    defineField({ name: "shippingAmount", title: "Shipping Amount", type: "number" }),
+    defineField({ name: "currency", title: "Currency", type: "string" }),
+    defineField({ name: "createdAt", title: "Order Date", type: "datetime" }),
 
     defineField({
       name: "shippingAddress",
       title: "Shipping Address",
       type: "object",
       fields: [
-        defineField({
-          name: "line1",
-          title: "Street Address",
-          type: "string",
-        }),
-        defineField({
-          name: "city",
-          title: "City",
-          type: "string",
-        }),
-        defineField({
-          name: "postalCode",
-          title: "Postal Code",
-          type: "string",
-        }),
-        defineField({
-          name: "country",
-          title: "Country",
-          type: "string",
-        }),
+        defineField({ name: "line1", title: "Street Address", type: "string" }),
+        defineField({ name: "line2", title: "Address Line 2", type: "string" }), // added - webhook saves this
+        defineField({ name: "city", title: "City", type: "string" }),
+        defineField({ name: "state", title: "State / County", type: "string" }), // added - webhook saves this
+        // Fixed: was "postalCode" but webhook saves "postal_code" - must match exactly
+        defineField({ name: "postal_code", title: "Postal Code", type: "string" }),
+        defineField({ name: "country", title: "Country", type: "string" }),
       ],
     }),
   ],
 
   preview: {
     select: {
-      orderNumber:"orderNumber",
+      orderNumber: "orderNumber",
       customer: "customerEmail",
       total: "totalAmount",
       status: "status",
-      date: "orderDate",
+      date: "createdAt",
     },
     prepare(selection: any) {
       const { orderNumber, customer, total, status, date } = selection;
@@ -226,11 +159,10 @@ export const order = defineType({
         month: "short",
         year: "numeric",
       });
-    return {
+      return {
         title: orderNumber || "No order number",
         subtitle: `${customer || "No email"} - £${total || 0} (${status || "unknown"}) (${formattedDate})`,
       };
-
     },
   },
 });
