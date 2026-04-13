@@ -1,3 +1,9 @@
+/**
+ * @interface ResponseRule
+ * defines the shape of a single rule in the responseRules array
+ * keywords are what the user has to say, responses is what the bot replies
+ * quickReplies are optional buttons shown below the response
+ */
 export interface ResponseRule {
   keywords: string[];
   responses: string[];
@@ -5,6 +11,16 @@ export interface ResponseRule {
   quickReplies?: string[];
 }
 
+/**
+ * responseRules
+ *
+ * list of keyword rules for the phase 1 rule based chatbot.
+ * each rule has a category, keywords to match on, and possible responses.
+ * matchKeywords picks a random response from the matched rule so it
+ * doesnt always say the same thing
+ *
+ * note: this is only used as a fallback now - phase 2 uses groq instead
+ */
 export const responseRules: ResponseRule[] = [
   { category: 'intro',
     keywords: ['hi', 'hello', 'hey', 'good morning', 'good afternoon', 'good evening'],
@@ -48,4 +64,5 @@ export const responseRules: ResponseRule[] = [
   }
 ];
 
-export const fallbackResponse = "cant help.";
+// shown when nothing in the rules matched - shouldnt really show in phase 2 since groq handles it
+export const fallbackResponse = "I can only help with skincare questions!";

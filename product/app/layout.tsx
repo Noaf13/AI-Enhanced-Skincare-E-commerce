@@ -80,28 +80,25 @@ export default function RootLayout({
   return (
     // Clerk authentication provider wraps entire app for user management and authentication
     <ClerkProvider>
-      <html lang="en">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-          <ChatContainer />
-          <StateContext>
-            {children}
-            <CartPopup />
-            {/* Toaster notification with custom styling */}
-            <Toaster
-              position="bottom-right"
-              toastOptions={{
-                duration: 3000,
-                style: {
-                  background: "#363636",
-                  color: "#fff",
-                },
-              }}
-            />
-          </StateContext>
-        </body>
-      </html>
-    </ClerkProvider>
+  <html lang="en">
+    <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <StateContext>
+        <ChatContainer />
+        {children}
+        <CartPopup />
+        <Toaster
+          position="bottom-right"
+          toastOptions={{
+            duration: 3000,
+            style: {
+              background: "#363636",
+              color: "#fff",
+            },
+          }}
+        />
+      </StateContext>
+    </body>
+  </html>
+</ClerkProvider>
   );
 }

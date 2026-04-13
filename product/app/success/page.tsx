@@ -48,13 +48,13 @@ export default async function Success({
   // Check if sessions is complete
   if (session.status === "complete") {
     return (
-      // Full-screen overlay centred over the page background
+      // redisigned this - changed from basic section to a centred overlay card
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-100">
         <section
           id="success"
           className="bg-white rounded-2xl shadow-xl px-10 py-12 max-w-md w-full mx-4 text-center"
         >
-          {/* Animated green checkmark circle */}
+          {/* green tick circle using the sites colour */}
           <div className="flex items-center justify-center w-20 h-20 rounded-full bg-[#90af9f]/20 mx-auto mb-6">
             <svg
               className="w-10 h-10 text-[#90af9f]"
@@ -83,10 +83,8 @@ export default async function Success({
             </span>
           </p>
 
-          {/* Divider */}
           <hr className="border-gray-100 mb-6" />
 
-          {/* Contact line */}
           <p className="text-xs text-gray-400 mb-6">
             Questions? Email us at{" "}
             <a
@@ -105,7 +103,7 @@ export default async function Success({
             View My Orders
           </Link>
 
-          {/* Secondary link back to shopping */}
+          {/* added second link so user can keep shopping without going back manually */}
           <Link
             href="/"
             className="inline-block mt-3 text-xs text-gray-400 hover:text-gray-600 transition"

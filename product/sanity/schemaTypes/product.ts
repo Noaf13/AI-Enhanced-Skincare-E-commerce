@@ -68,15 +68,15 @@ export const product = defineType({
       title: "Product description",
       type: "text",
     }),
-    //for the filters references any document of type category
+
+    // fixed this - was "string" before which was wrong, needs to reference the category schema
     defineField({
-      name: "category",
-      title: "Category",
+      name: "category",title: "Category",
       type: "reference",
       to: [{ type: "category" }],
     }),
 
-    // Added skin type section
+    // added skin type for the filtering system
     defineField({
       name: "skinType",
       title: "Skin Type",
@@ -90,12 +90,11 @@ export const product = defineType({
           {title:"Combination",value:"combination"},
           {title:"Sensitive",value:"sensitive"},
           {title:"All Skin Types",value:"all"},
-
         ]
       }
     }),
 
-    // Added ingredients
+    // added ingredients - needed for the ingredient filter
     defineField({
       name: "ingredients",
       title: "Key Ingredients",
@@ -105,7 +104,6 @@ export const product = defineType({
         list: [
           { title: "Hyaluronic Acid", value: "hyaluronic-acid" },
           { title: "Vitamin C", value: "vitamin-c" },
-
           { title: "Retinol", value: "retinol" },
           { title: "Niacinamide", value: "niacinamide" },
           { title: "Salicylic Acid", value: "salicylic-acid" },
@@ -119,8 +117,6 @@ export const product = defineType({
         ],
       },
     }),
-
-
 
     defineField({
       name: "stock",

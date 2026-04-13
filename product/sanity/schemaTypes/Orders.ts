@@ -57,6 +57,7 @@ export const order = defineType({
   type: "document",
 
   fields: [
+    // added order number so its easier to identify orders in the studio
     defineField({
       name: "orderNumber",
       title: "Order Number",
@@ -73,6 +74,7 @@ export const order = defineType({
       title: "Stripe Session ID",
       type: "string",
     }),
+    // renamed from userEmail - matches what the webhook actually sends
     defineField({
       name: "customerEmail",
       title: "Customer Email",
@@ -94,7 +96,7 @@ export const order = defineType({
       type: "string",
       options: {
         list: [
-          { title: "Pending", value: "pending" },
+          { title: "Pending", value: "pending" }, // added pending + delivered
           { title: "Paid", value: "paid" },
           { title: "Processing", value: "processing" },
           { title: "Shipped", value: "shipped" },
@@ -113,6 +115,7 @@ export const order = defineType({
         defineArrayMember({
           type: "object",
           fields: [
+            // renamed productName -> name and added productId to match webhook data
             defineField({ name: "productId", title: "Product ID", type: "string" }),
             defineField({ name: "name", title: "Product Name", type: "string" }),
             defineField({ name: "price", title: "Price", type: "number" }),
@@ -123,8 +126,9 @@ export const order = defineType({
       ],
     }),
     defineField({ name: "totalAmount", title: "Total Amount", type: "number" }),
-    defineField({ name: "shippingAmount", title: "Shipping Amount", type: "number" }),
+    defineField({ name: "shippingAmount", title: "Shipping Amount", type: "number" }), // added
     defineField({ name: "currency", title: "Currency", type: "string" }),
+    // renamed from orderDate to createdAt to match webhook
     defineField({ name: "createdAt", title: "Order Date", type: "datetime" }),
 
     defineField({
@@ -133,10 +137,10 @@ export const order = defineType({
       type: "object",
       fields: [
         defineField({ name: "line1", title: "Street Address", type: "string" }),
-        defineField({ name: "line2", title: "Address Line 2", type: "string" }), // added - webhook saves this
+        defineField({ name: "line2", title: "Address Line 2", type: "string" }), // added
         defineField({ name: "city", title: "City", type: "string" }),
-        defineField({ name: "state", title: "State / County", type: "string" }), // added - webhook saves this
-        // Fixed: was "postalCode" but webhook saves "postal_code" - must match exactly
+        defineField({ name: "state", title: "State / County", type: "string" }), // added
+        // was postalCode but webhook sends postal_code so changed to match
         defineField({ name: "postal_code", title: "Postal Code", type: "string" }),
         defineField({ name: "country", title: "Country", type: "string" }),
       ],
@@ -159,6 +163,7 @@ export const order = defineType({
         month: "short",
         year: "numeric",
       });
+      // updated preview to show order number instead of session id
       return {
         title: orderNumber || "No order number",
         subtitle: `${customer || "No email"} - £${total || 0} (${status || "unknown"}) (${formattedDate})`,

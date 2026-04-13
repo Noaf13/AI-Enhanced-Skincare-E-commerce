@@ -13,6 +13,7 @@ import Herobanner from "@/components/HeroBanner";
 import { client } from "@/sanity/lib/client";
 import ProductSection from "@/components/ProductSection";
 
+// expanded product interface to include the new fields needed for filtering
 interface Product {
   _id: string;
   name: string;
@@ -26,9 +27,8 @@ interface Product {
 }
 
 export default async function HomePage() {
-  /**
-   * Fetch products with skintype and ingredients for filtering system
-   */
+  // updated query to also fetch skintype + ingredients for the filter system
+  // removed the [0...6] limit so all products show
   const products: Product[] = await client.fetch(
     `*[_type == "product" && stock == true]{
       _id,
@@ -47,7 +47,7 @@ export default async function HomePage() {
     <main className="min-h-screen bg-gray-50 text-gray-900">
       <Navbar />
       <Herobanner />
-      {/* Made seperate product section to add the filtering system and improve file organisation */}
+      {/* moved product grid into its own component to keep this file clean and add filtering */}
       <ProductSection products={products} />
     </main>
   );

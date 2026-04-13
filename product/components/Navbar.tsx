@@ -102,7 +102,7 @@ export default function Navbar() {
           <li>
             <Link href="/wishlist">
               <svg
-                className="w-5 h-5 text-white hover:text-gray-200"
+                className="w-5 h-5 text-white hover:text-pink-300 "
                 fill="currentColor"
                 viewBox="0 0 24 24"
               >

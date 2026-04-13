@@ -1,14 +1,23 @@
 "use client";
 
 import React, { useState } from "react";
+import { AiOutlineSearch, AiOutlineClose } from "react-icons/ai";
+import { MdKeyboardArrowDown } from "react-icons/md";
 
+/**
+ * @interface FilterSidebarProps
+ * all the filter state and setters passed down from the useFilters hook
+ * kept in the parent so state is shared with the product grid
+ */
 interface FilterSidebarProps {
   searchQuery: string;
   category: string | null;
   maxPrice: number;
   skinTypes: string[];
   ingredients: string[];
+
   availableCategories: string[];
+  
   availableSkinTypes: string[];
   availableIngredients: string[];
   highestPrice: number;
@@ -36,16 +45,25 @@ const INGREDIENT_LABELS: Record<string, string> = {
   "vitamin-c": "Vitamin C",
   retinol: "Retinol",
   niacinamide: "Niacinamide",
-  "salicylic-acid": "Salicylic Acid",
+"salicylic-acid": "Salicylic Acid",
   ceramides: "Ceramides",
   "aha-bha": "AHA/BHA",
   spf: "SPF",
-  "aloe-vera": "Aloe Vera",
+    "aloe-vera": "Aloe Vera",
   "tea-tree": "Tea Tree",
   peptides: "Peptides",
   squalane: "Squalane",
 };
 
+/**
+ * FilterSection
+ *
+ * reusable collapsable wrapper for each filter group
+ * defaults to open but ingredients section passes defaultOpen=false
+ *
+ * @param {{ title: string, children: React.ReactNode, defaultOpen?: boolean }} props
+ * @returns {JSX.Element}
+ */
 //colalpsable section
 function FilterSection({
   title,
@@ -68,17 +86,11 @@ function FilterSection({
           {title}
         </span>
         {/* arrow flips when open */}
-        <svg
+        <MdKeyboardArrowDown
           className={`w-4 h-4 text-gray-400 transition-transform duration-200 group-hover:text-gray-600 ${
             isOpen ? "rotate-180" : ""
           }`}
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-        </svg>
+        />
       </button>
       {/* animate open/close */}
       <div
@@ -92,6 +104,16 @@ function FilterSection({
   );
 }
 
+/**
+ * FilterSidebar
+ *
+ * sidebar with search, category, price, skin type and ingredient filters.
+ * all state is controlled from the parent via props - this component is purely presentational.
+ * active filter count badge shows how many filters are currently applied
+ *
+ * @param {FilterSidebarProps} props
+ * @returns {JSX.Element}
+ */
 export default function FilterSidebar({
   searchQuery,
   category,
@@ -132,21 +154,10 @@ export default function FilterSidebar({
         )}
       </div>
 
+      {/* search box */}
       <div className="mb-4">
         <div className="relative">
-          <svg
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
+          <AiOutlineSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             type="text"
             value={searchQuery}
@@ -160,15 +171,7 @@ export default function FilterSidebar({
               onClick={() => setSearchQuery("")}
               className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-gray-100"
             >
-              <svg
-                className="w-4 h-4 text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <AiOutlineClose className="w-4 h-4 text-gray-400" />
             </button>
           )}
         </div>
@@ -267,6 +270,8 @@ export default function FilterSidebar({
                       ? "text-gray-900 font-medium"
                       : "text-gray-600"
                   }`}
+
+
                 >
                   {INGREDIENT_LABELS[ing] || ing}
                 </span>

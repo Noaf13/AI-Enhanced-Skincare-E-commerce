@@ -7,7 +7,12 @@ import { AddToCartButton } from "@/components/AddToCartButton";
 import WishlistButton from "@/components/WishlistButton";
 import FilterSidebar from "@/components/FilterSidebar";
 import { useFilters, Product } from "@/hooks/useFilters";
+import { AiOutlineClose } from "react-icons/ai";
 
+/**
+ * @interface ProductSectionProps
+ * @property {Product[]} products - full product list fetched from sanity in the parent page
+ */
 interface ProductSectionProps {
   products: Product[];
 }
@@ -37,6 +42,16 @@ const INGREDIENT_LABELS: Record<string, string> = {
   squalane: "Squalane",
 };
 
+/**
+ * ProductSection
+ *
+ * renders the filter sidebar and product grid together.
+ * all filter logic lives in the useFilters hook - this component
+ * just passes state down and renders the results
+ *
+ * @param {ProductSectionProps} props
+ * @returns {JSX.Element}
+ */
 export default function ProductSection({ products }: ProductSectionProps) {
   //get everything we need from the filter hook
   const {
@@ -114,7 +129,7 @@ export default function ProductSection({ products }: ProductSectionProps) {
       )}
 
       <div className="flex gap-8">
-        {/* sidebar with search and filters */}
+        {/* sidebar - sticky so it stays visible while scrolling */}
         <div className="w-60 flex-shrink-0">
           <div className="sticky top-6 bg-white rounded-xl border border-gray-100 shadow-sm p-5">
             <FilterSidebar
@@ -195,6 +210,13 @@ export default function ProductSection({ products }: ProductSectionProps) {
   );
 }
 
+/**
+ * FilterTag
+ * small removable chip shown above the grid for each active filter
+ *
+ * @param {{ label: string, onRemove: () => void }} props
+ * @returns {JSX.Element}
+ */
 //small tag with an x button to remove a filter
 function FilterTag({
   label,
@@ -210,15 +232,7 @@ function FilterTag({
         onClick={onRemove}
         className="p-0.5 rounded-full hover:bg-gray-200"
       >
-        <svg
-          className="w-3 h-3"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2.5}
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-        </svg>
+        <AiOutlineClose className="w-3 h-3" />
       </button>
     </span>
   );

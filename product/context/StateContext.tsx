@@ -44,6 +44,7 @@ export interface CartItem {
   image?: string;
 }
 
+// added for wishlist feature
 export interface WishlistItem {
   _id: string;
   name: string;
@@ -154,7 +155,6 @@ export const StateContext = ({ children }: StateContextProps) => {
     try {
       //0.5s delay for server call so it looks cleaner
 
-      
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       toast.success(`${quantity} ${product.name} added to cart!`);
@@ -221,8 +221,9 @@ export const StateContext = ({ children }: StateContextProps) => {
     });
     //check to not go bellow 1
   };
+
   // wishlist funcyions
-  // uses guest if not logged in - so wishlist is per-user
+  // key is per user so wishlists dont bleed between accounts, guest fallback just in case
   const wishlistKey = user ? `wishlist_${user.id}` : "wishlist_guest";
 
   //load this user's wishlist from localStorage when the user changes

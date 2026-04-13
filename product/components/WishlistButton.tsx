@@ -2,8 +2,12 @@
 
 import { useStateContext, WishlistItem } from "@/context/StateContext";
 import { FiHeart } from 'react-icons/fi';   // outline
-import { FaHeart } from 'react-icons/fa';  //filled in 
+import { FaHeart } from 'react-icons/fa';  //filled in
 
+/**
+ * @interface WishlistButtonProps
+ * @property {object} product - the product to wishlist, needs id/name/price/image/slug
+ */
 interface WishlistButtonProps {
   product: {
     _id: string;
@@ -14,6 +18,16 @@ interface WishlistButtonProps {
   };
 }
 
+/**
+ * WishlistButton
+ *
+ * heart icon button that toggles a product in/out of the wishlist.
+ * filled pink heart = already wishlisted, outline = not wishlisted.
+ * reads and writes wishlist state via StateContext
+ *
+ * @param {WishlistButtonProps} props
+ * @returns {JSX.Element}
+ */
 export default function WishlistButton({ product }: WishlistButtonProps) {
   const { addToWishlist, removeFromWishlist, isInWishlist } = useStateContext();
 

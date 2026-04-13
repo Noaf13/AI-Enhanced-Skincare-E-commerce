@@ -48,7 +48,7 @@ export async function POST(request: Request) {
     const headersList = await headers();
     const origin = headersList.get("origin");
 
-    // Get authenticated user from clerk
+    // added clerk auth - need userId for metadata + to block guests from checkout
     const {userId} = await auth()!
     if (!userId){
       return NextResponse.json(
@@ -68,13 +68,14 @@ export async function POST(request: Request) {
       );
     }
 
-    // Essential cart data - include image so it saves correctly to Sanity via webhook
+    // strip down cart items before putting in metadata - stripe has a 500 char limit
+    // had to add image back in here becuase orders werent showing images
     const essentialCartItems = cartItems.map((item:any)=>({
       _id:item._id,
       name:item.name,
       price: item.price,
       quantity: item.quantity,
-      image: item.image || "", // included so order history shows product images
+      image: item.image || "",
     }))
 
     // Create Checkout Sessions with payment configuration
@@ -84,11 +85,12 @@ export async function POST(request: Request) {
       payment_method_types: ["card"],
       billing_address_collection: "auto",
 
-      // Collect shipping address from the customer on the Stripe checkout page
+      // added this so stripe actually collects the shipping address on checkout
       shipping_address_collection: {
         allowed_countries: ["GB", "US", "CA", "AU", "IE", "FR", "DE", "NL"],
       },
 
+      //added shipping options
       shipping_options: [
         { shipping_rate: "shr_1SVXqyKrElyPn1fzeOxFPye5" },
         { shipping_rate: "shr_1SVXsaKrElyPn1fzfh6LkLRY" },
@@ -102,21 +104,22 @@ export async function POST(request: Request) {
             name: item.name, //product name from cart
             images: item.image ? [item.image] : [], //product image
           },
-          unit_amount: Math.round(item.price * 100), // since stripe requires amount in pence
+          unit_amount: Math.round(item.price * 100), // stripe needs pence not pounds
         },
         quantity: item.quantity, //quantity from cart items
       })),
 
+      // store userId + cart in metadata so the webhook can create the order in sanity
       metadata:{
         clerkUserId:userId,
         cartItems:JSON.stringify(essentialCartItems)
-        // storing essential data including images
       },
 
       //Redirect to success page if payment is successful
       success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/cart`,
     });
+
     return NextResponse.json({
       url: session.url,
       sessionId: session.id,

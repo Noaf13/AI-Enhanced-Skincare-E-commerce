@@ -2,6 +2,11 @@
 
 import { useState, useMemo } from "react";
 
+/**
+ * @interface Product
+ * shape of a product as it comes back from the sanity query in homepage
+ * categoryName is dereferenced from the category reference using ->
+ */
 //shape of product coming from sanity
 export interface Product {
   _id: string;
@@ -15,6 +20,11 @@ export interface Product {
   ingredients?: string[];
 }
 
+/**
+ * @interface FilterState
+ * holds the current value of every filter the user can change
+ * skinTypes and ingredients are arrays because they support multi select
+ */
 //all the filters the user can change
 export interface FilterState {
   searchQuery: string;
@@ -24,6 +34,22 @@ export interface FilterState {
   ingredients: string[];
 }
 
+/**
+ * useFilters
+ *
+ * custom hook that handles all the filtering logic for the product grid.
+ * takes the full product list and returns filtered results + filter state + actions.
+ * uses useMemo throughout so filters only recompute when something actually changes.
+ *
+ * skin type filter uses OR logic - product needs at least one match
+ * ingredient filter uses AND logic - product needs all selected ingredients
+ *
+ * @param {Product[]} products - full product list from sanity
+ * @returns filter state, filtered products, available options and setter functions
+ *
+ * @example
+ * const { filteredProducts, setSearchQuery } = useFilters(products)
+ */
 export function useFilters(products: Product[]) {
 
   //starting state - nothing filtered yet
@@ -219,6 +245,7 @@ export function useFilters(products: Product[]) {
   return {
     filters,
     filteredProducts,
+    
     availableCategories,
     availableSkinTypes,
     availableIngredients,
