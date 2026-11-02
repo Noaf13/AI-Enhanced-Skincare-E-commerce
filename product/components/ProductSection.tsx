@@ -1,0 +1,239 @@
+"use client";
+
+import React from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { AddToCartButton } from "@/components/AddToCartButton";
+import WishlistButton from "@/components/WishlistButton";
+import FilterSidebar from "@/components/FilterSidebar";
+import { useFilters, Product } from "@/hooks/useFilters";
+import { AiOutlineClose } from "react-icons/ai";
+
+/**
+ * @interface ProductSectionProps
+ * @property {Product[]} products - full product list fetched from sanity in the parent page
+ */
+interface ProductSectionProps {
+  products: Product[];
+}
+
+//readable labels so we show "Hyaluronic Acid" not "hyaluronic-acid"
+const SKIN_TYPE_LABELS: Record<string, string> = {
+  normal: "Normal",
+  oily: "Oily",
+  dry: "Dry",
+  combination: "Combination",
+  sensitive: "Sensitive",
+  all: "All Skin Types",
+};
+
+const INGREDIENT_LABELS: Record<string, string> = {
+  "hyaluronic-acid": "Hyaluronic Acid",
+  "vitamin-c": "Vitamin C",
+  retinol: "Retinol",
+  niacinamide: "Niacinamide",
+  "salicylic-acid": "Salicylic Acid",
+  ceramides: "Ceramides",
+  "aha-bha": "AHA/BHA",
+  spf: "SPF",
+  "aloe-vera": "Aloe Vera",
+  "tea-tree": "Tea Tree",
+  peptides: "Peptides",
+  squalane: "Squalane",
+};
+
+/**
+ * ProductSection
+ *
+ * renders the filter sidebar and product grid together.
+ * all filter logic lives in the useFilters hook - this component
+ * just passes state down and renders the results
+ *
+ * @param {ProductSectionProps} props
+ * @returns {JSX.Element}
+ */
+export default function ProductSection({ products }: ProductSectionProps) {
+  //get everything we need from the filter hook
+  const {
+    filters,
+    filteredProducts,
+    availableCategories,
+    availableSkinTypes,
+    availableIngredients,
+    highestPrice,
+    activeFilterCount,
+    setSearchQuery,
+    setCategory,
+    setMaxPrice,
+    toggleSkinType,
+    toggleIngredient,
+    clearAllFilters,
+  } = useFilters(products);
+
+  return (
+    <section id="bestsellers" className="max-w-7xl mx-auto px-6 py-12">
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold text-center sm:text-left">
+          Best Sellers
+        </h2>
+        {/* show how many products match the current filters */}
+        <p className="text-sm text-gray-400 mt-1">
+          {filteredProducts.length} product
+          {filteredProducts.length !== 1 ? "s" : ""}
+          {activeFilterCount > 0 && " found"}
+        </p>
+      </div>
+
+      {/* little tags showing whats currently filtered - can click x to remove each one */}
+      {activeFilterCount > 0 && (
+        <div className="flex flex-wrap items-center gap-2 mb-6">
+          {filters.searchQuery && (
+            <FilterTag
+              label={`"${filters.searchQuery}"`}
+              onRemove={() => setSearchQuery("")}
+            />
+          )}
+          {filters.category && (
+            <FilterTag
+              label={filters.category}
+              onRemove={() => setCategory(null)}
+            />
+          )}
+          {filters.maxPrice < highestPrice && (
+            <FilterTag
+              label={`Under £${filters.maxPrice}`}
+              onRemove={() => setMaxPrice(highestPrice)}
+            />
+          )}
+          {filters.skinTypes.map((t: string) => (
+            <FilterTag
+              key={t}
+              label={SKIN_TYPE_LABELS[t] || t}
+              onRemove={() => toggleSkinType(t)}
+            />
+          ))}
+          {filters.ingredients.map((i: string) => (
+            <FilterTag
+              key={i}
+              label={INGREDIENT_LABELS[i] || i}
+              onRemove={() => toggleIngredient(i)}
+            />
+          ))}
+          <button
+            onClick={clearAllFilters}
+            className="text-xs text-gray-400 hover:text-gray-600 underline underline-offset-2 ml-1"
+          >
+            Clear all
+          </button>
+        </div>
+      )}
+
+      <div className="flex gap-8">
+        {/* sidebar - sticky so it stays visible while scrolling */}
+        <div className="w-60 flex-shrink-0">
+          <div className="sticky top-6 bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+            <FilterSidebar
+              searchQuery={filters.searchQuery}
+              category={filters.category}
+              maxPrice={filters.maxPrice}
+              skinTypes={filters.skinTypes}
+              ingredients={filters.ingredients}
+              availableCategories={availableCategories}
+              availableSkinTypes={availableSkinTypes}
+              availableIngredients={availableIngredients}
+              highestPrice={highestPrice}
+              activeFilterCount={activeFilterCount}
+              setSearchQuery={setSearchQuery}
+              setCategory={setCategory}
+              setMaxPrice={setMaxPrice}
+              toggleSkinType={toggleSkinType}
+              toggleIngredient={toggleIngredient}
+              clearAllFilters={clearAllFilters}
+            />
+          </div>
+        </div>
+
+        {/* product grid */}
+        <div className="flex-1">
+          {/* empty state when no products match */}
+          {filteredProducts.length === 0 ? (
+            <div className="text-center py-16">
+              <p className="text-gray-500 text-lg mb-1">No products found</p>
+              <p className="text-gray-400 text-sm mb-4">
+                Try adjusting your filters or search query.
+              </p>
+              <button
+                onClick={clearAllFilters}
+                className="text-sm font-medium text-[#90af9f] hover:text-[#7a9a8a] underline underline-offset-2"
+              >
+                Clear all filters
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+              {filteredProducts.map((product: Product) => (
+                <div
+                  key={product._id}
+                  className="bg-white p-4 rounded-lg shadow hover:shadow-lg transition flex flex-col"
+                >
+                  <Link href={`/products/${product.slug.current}`}>
+                    <div className="cursor-pointer relative">
+                      {product.image && (
+                        <Image
+                          src={product.image}
+                          alt={product.name}
+                          width={300}
+                          height={300}
+                          className="w-full h-60 object-cover rounded-md mb-3"
+                        />
+                      )}
+                      {/* heart icon in top right corner of image */}
+                      <div className="absolute top-2 right-2" onClick={(e) => e.preventDefault()}>
+                        <WishlistButton product={product} />
+                      </div>
+                      <h3 className="text-lg font-semibold">{product.name}</h3>
+                    </div>
+                  </Link>
+
+                  <p className="text-gray-600 mb-2">£{product.price}</p>
+                  <div className="mt-auto">
+                    {/* push button to the bottom */}
+                    <AddToCartButton product={product} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * FilterTag
+ * small removable chip shown above the grid for each active filter
+ *
+ * @param {{ label: string, onRemove: () => void }} props
+ * @returns {JSX.Element}
+ */
+//small tag with an x button to remove a filter
+function FilterTag({
+  label,
+  onRemove,
+}: {
+  label: string;
+  onRemove: () => void;
+}) {
+  return (
+    <span className="inline-flex items-center gap-1 bg-gray-100 text-gray-700 text-xs font-medium pl-3 pr-1.5 py-1 rounded-full">
+      {label}
+      <button
+        onClick={onRemove}
+        className="p-0.5 rounded-full hover:bg-gray-200"
+      >
+        <AiOutlineClose className="w-3 h-3" />
+      </button>
+    </span>
+  );
+}
