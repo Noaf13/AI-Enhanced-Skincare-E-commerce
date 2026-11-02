@@ -1,4 +1,3 @@
-# Final Year Project
 
 ## AI-Enhanced Skincare E-Commerce Platform 
 
